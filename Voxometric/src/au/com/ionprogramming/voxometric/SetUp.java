@@ -16,6 +16,7 @@ public class SetUp {
 					init();
 					frame = new Window(width, height);
 					frame.setTitle("Voxometric");
+					frame.setFPS(60);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

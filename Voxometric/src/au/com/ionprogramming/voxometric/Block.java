@@ -42,34 +42,34 @@ public class Block {
 			case 0:
 				cl = ymax;
 				cr = xmax;
-				deltaX = (dx - dy)*Block.width/2 
-						+ (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Math.cos(phi)*sideLength);
-				deltaY = dz*Block.height - (dx + dy)*Block.height/2 
-						+ (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Math.sin(phi)*sideLength - (cz - (int)cz)*Block.height);
+				deltaX = (dx - dy)*Block.width/2
+						- (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Math.cos(phi)*sideLength);
+				deltaY = -dz*Block.height + (dx + dy)*Block.height/2
+						- (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Math.sin(phi)*sideLength - (cz - (int)cz)*Block.height);
 				break;
 			case 1:
 				cl = xmax;
 				cr = ymin;
 				deltaX = (-dy - dx)*Block.width/2 
-						+ (int)(((-cy + (int)cy - 0.5) - (cx - (int)cx - 0.5))*Math.cos(phi)*sideLength);
-				deltaY = dz*Block.height - (-dy + dx)*Block.height/2 
-						+ (int)(((-cy + (int)cy - 0.5) + (cx - (int)cx - 0.5))*Math.sin(phi)*sideLength - (cz - (int)cz)*Block.height);
+						- (int)(((-cy + (int)cy - 0.5) - (cx - (int)cx - 0.5))*Math.cos(phi)*sideLength);
+				deltaY = -dz*Block.height - (-dy + dx)*Block.height/2 
+						+ (int)(((-cy + (int)cy - 0.5) + (cx - (int)cx - 0.5))*Math.sin(phi)*sideLength + (cz - (int)cz)*Block.height);
 				break;
 			case 2:
 				cl = ymin;
 				cr = xmin;
 				deltaX = -((dx - dy)*Block.width/2 
-						+ (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Math.cos(phi)*sideLength));
-				deltaY = dz*Block.height + (dx + dy)*Block.height/2 
-						- (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Math.sin(phi)*sideLength + (cz - (int)cz)*Block.height);
+						- (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Math.cos(phi)*sideLength));
+				deltaY = -dz*Block.height + (dx + dy)*Block.height/2 
+						- (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Math.sin(phi)*sideLength - (cz - (int)cz)*Block.height);
 				break;
 			case 3:
 				cl = xmin;
 				cr = ymax;
 				deltaX = -((-dy - dx)*Block.width/2 
-						+ (int)(((-cy + (int)cy - 0.5) - (cx - (int)cx - 0.5))*Math.cos(phi)*sideLength));
-				deltaY = dz*Block.height + (-dy + dx)*Block.height/2 
-						- (int)(((-cy + (int)cy - 0.5) + (cx - (int)cx - 0.5))*Math.sin(phi)*sideLength + (cz - (int)cz)*Block.height);
+						- (int)(((-cy + (int)cy - 0.5) - (cx - (int)cx - 0.5))*Math.cos(phi)*sideLength));
+				deltaY = -dz*Block.height + (-dy + dx)*Block.height/2 
+						- (int)(((-cy + (int)cy - 0.5) + (cx - (int)cx - 0.5))*Math.sin(phi)*sideLength - (cz - (int)cz)*Block.height);
 		}
 		deltaX += width/2;
 		deltaY += height/2;
@@ -90,7 +90,7 @@ public class Block {
 	public static void setBlockSize(int width, int height){
 		Block.width = width;
 		Block.height = height;
-		sideLength = Math.sqrt(width*width + height*height);
+		sideLength = Math.sqrt(width*width + height*height)/2;
 		Block.phi = Math.atan(((double)height)/((double)width));
 		int[] xVals = new int[]{-width/2, 0, width/2, 0};
 		int[] yVals = new int[]{0, -height/2, 0, height/2};

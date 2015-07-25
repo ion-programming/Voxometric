@@ -8,7 +8,7 @@ public class Generator {
 
 	public static Chunk generate(){
 		Random r = new Random();
-		int chunkSize = 2;
+		int chunkSize = 3;
 		Block[][][] blocks = new Block[chunkSize][chunkSize][chunkSize];
 		for(int z = 0; z < chunkSize; z++){
 			for(int y = 0; y < chunkSize; y++){
