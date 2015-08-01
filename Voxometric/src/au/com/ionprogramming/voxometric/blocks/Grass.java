@@ -3,6 +3,7 @@ package au.com.ionprogramming.voxometric.blocks;
 import org.newdawn.slick.Color;
 
 import au.com.ionprogramming.voxometric.Block;
+import au.com.ionprogramming.voxometric.Images;
 
 public class Grass extends Block {
 	

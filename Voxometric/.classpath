@@ -15,5 +15,7 @@
 			<attribute name="javadoc_location" value="jar:file:/C:/Users/Lucas/Desktop/slick/javadoc/allclasses-frame.zip!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/jogg-0.0.7.jar"/>
+	<classpathentry kind="lib" path="lib/jorbis-0.0.15.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

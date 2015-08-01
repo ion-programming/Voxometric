@@ -15,6 +15,10 @@ public class Images {
 			rGrass = new Image("res/rightGrass.png");
 			topGrass = new Image("res/topGrass.png");
 			lGrass = new Image("res/leftGrass.png");
+			
+//			topGrass.setColor(3, 0.5f, 0.5f, 0.5f);
+			
+			
 		} catch (SlickException e) {
 			e.printStackTrace();
 		}
