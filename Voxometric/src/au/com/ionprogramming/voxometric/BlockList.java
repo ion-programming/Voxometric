@@ -3,9 +3,9 @@ package au.com.ionprogramming.voxometric;
 import java.util.ArrayList;
 
 public class BlockList {
-	private static ArrayList<String> names = new ArrayList<String>();
+	private ArrayList<String> names = new ArrayList<String>();
 	
-	public static String getClassName(int id){
+	public String getClassName(int id){
 		try{
 			return names.get(id);
 		}
@@ -13,5 +13,25 @@ public class BlockList {
 			System.err.println("Unknown Block id!");
 		}
 		return null;
+	}
+	
+	public int getBlockID(String name){
+		return names.indexOf(name);
+	}
+	
+	public void addBlockType(String name){
+		names.add(name);
+	}
+	
+	public void addBlockType(String name, int index){
+		names.add(index, name);
+	}
+	
+	public void removeBlockType(String name){
+		names.remove("name");
+	}
+	
+	public void removeBlockType(int index){
+		names.remove(index);
 	}
 }

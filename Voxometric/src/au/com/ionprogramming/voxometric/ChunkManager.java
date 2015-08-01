@@ -1,7 +1,9 @@
 package au.com.ionprogramming.voxometric;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class ChunkManager {
@@ -9,10 +11,20 @@ public class ChunkManager {
 	private Chunk[][][] chunks;
 	private String worldFile = "C:/Users/Sam/Desktop/world.vox";
 	private int chunkSize;
+	private BlockList blockList;
 	
 	public ChunkManager(){
 		chunks = new Chunk[1][1][1];
 		oX = oY = oZ = 0;
+		blockList = new BlockList();
+	}
+	
+	public BlockList getBlockList(){
+		return blockList;
+	}
+	
+	public void setBlockList(BlockList blockList){
+		this.blockList = blockList;
 	}
 	
 	public void addChunk(Chunk c, int x, int y, int z){
@@ -75,11 +87,11 @@ public class ChunkManager {
 										}
 									}
 									try{
-										chunkData[i][j][k] = (Block)(Class.forName(BlockList.getClassName(Integer.parseInt(word[0]))).newInstance());
+										chunkData[i][j][k] = (Block)(Class.forName(blockList.getClassName(Integer.parseInt(word[0]))).newInstance());
 									}
 									catch(Exception e){
 										chunkData[i][j][k] = null;
-										System.err.println("Unable to find class!");
+										System.err.println("Unable to find class with id: " + word[0]);
 									}
 									i++;
 								}
@@ -97,11 +109,11 @@ public class ChunkManager {
 									}
 								}
 								try{
-									chunkData[i][j][k] = (Block)(Class.forName(BlockList.getClassName(Integer.parseInt(line[m]))).newInstance());
+									chunkData[i][j][k] = (Block)(Class.forName(blockList.getClassName(Integer.parseInt(line[m]))).newInstance());
 								}
 								catch(Exception e){
 									chunkData[i][j][k] = null;
-									System.err.println("Unable to find class!");
+									System.err.println("Unable to find class with id: " + line[m]);
 								}
 								i++;
 							}
@@ -115,11 +127,72 @@ public class ChunkManager {
 			}
 		}
 		catch(IOException e){
+			System.err.println("Unable to find save file: " + worldFile);
 		}
 		return null;
 	}
 	
 	private void saveChunk(int x, int y, int z){
-		
+		try{
+			BufferedReader in = new BufferedReader(new FileReader(worldFile));
+			BufferedWriter out = new BufferedWriter(new FileWriter(worldFile + "_"));
+			try{
+				boolean create = true;
+				String line;
+				while((line = in.readLine()) != null){
+					String[] start = line.split(" ", 5);
+					if(start.length >= 4 && start[0].equals("+") && start[1].equals(x + "") && start[2].equals(y + "") && start[3].equals(z + "")){
+						create = false;
+						out.write("+ " + x + " " + y + " " + z + " ");
+						int id = blockList.getBlockID(chunks[x][y][z].chunkData[0][0][0].getClass().getTypeName());	//TODO: Find correct chunk, not x, y, z
+						int lineCount = 1;
+						for(int i = 0; i < chunkSize; i++){
+							for(int j = 0; j < chunkSize; j++){
+								for(int k = 0; k < chunkSize; k++){
+									int nextID = blockList.getBlockID(chunks[x][y][z].chunkData[x][y][z].getClass().getTypeName());
+									if(id != nextID){
+										out.write(id + ":" + lineCount + " ");
+										lineCount = 0;
+									}
+									lineCount++;
+								}
+							}
+						}
+						out.write(id + ":" + lineCount + " ");
+						out.newLine();
+					}
+					else{
+						out.write(line);
+						out.newLine();
+					}
+				}
+				if(create){
+					out.write("+ " + x + " " + y + " " + z + " ");
+					int id = blockList.getBlockID(chunks[x][y][z].chunkData[0][0][0].getClass().getTypeName());	//TODO: Find correct chunk, not x, y, z
+					int lineCount = 1;
+					for(int i = 0; i < chunkSize; i++){
+						for(int j = 0; j < chunkSize; j++){
+							for(int k = 0; k < chunkSize; k++){
+								int nextID = blockList.getBlockID(chunks[x][y][z].chunkData[x][y][z].getClass().getTypeName());
+								if(id != nextID){
+									out.write(id + ":" + lineCount + " ");
+									lineCount = 0;
+								}
+								lineCount++;
+							}
+						}
+					}
+					out.write(id + ":" + lineCount + " ");
+					out.newLine();
+				}
+			}
+			finally{
+				in.close();
+				out.close();
+			}
+		}
+		catch(IOException e){
+			System.err.println("Unable to find save file: " + worldFile);
+		}
 	}
 }

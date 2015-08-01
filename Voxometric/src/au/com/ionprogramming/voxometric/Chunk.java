@@ -5,6 +5,7 @@ import org.newdawn.slick.Graphics;
 public class Chunk {
 
 	int chunkSize;
+	
 	Block[][][] chunkData;
 	
 	public Chunk(int chunkSize, Block[][][] chunkData){
@@ -18,21 +19,6 @@ public class Chunk {
 			for(int y = 0; y < chunkSize; y++){
 				for(int x = 0; x < chunkSize; x++){
 					if(chunkData[x][y][z] != null){
-//						if(x > 0 && chunkData[x - 1][y][z] != null && !chunkData[x - 1][y][z].isTransparent()){
-//							chunkData[x][y][z].coveredFaces += 2;
-//						}
-//						if(x + 1 < chunkSize && chunkData[x + 1][y][z] != null && !chunkData[x + 1][y][z].isTransparent()){
-//							chunkData[x][y][z].coveredFaces += 4;
-//						}
-//						if(y > 0 && chunkData[x][y - 1][z] != null && !chunkData[x][y - 1][z].isTransparent()){
-//							chunkData[x][y][z].coveredFaces += 8;
-//						}
-//						if(y + 1 < chunkSize && chunkData[x][y + 1][z] != null && !chunkData[x][y + 1][z].isTransparent()){
-//							chunkData[x][y][z].coveredFaces += 16;
-//						}
-//						if(z + 1 < chunkSize && chunkData[x][y][z + 1] != null && !chunkData[x][y][z + 1].isTransparent()){
-//							chunkData[x][y][z].coveredFaces += 1;
-//						}
 						
 						if(x > 0 && chunkData[x - 1][y][z] != null){
 							if((!chunkData[x - 1][y][z].isTransparent()) 
