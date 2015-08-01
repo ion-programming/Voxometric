@@ -168,6 +168,10 @@ public class Block {
 		rightPoly = new Polygon(points);
 	}
 
+	public boolean isTextured(){
+		return textured;
+	}
+	
 	public boolean isTransparent() {
 		return isTransparent;
 	}

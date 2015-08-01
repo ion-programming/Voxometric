@@ -35,6 +35,8 @@ public class SlickGame extends BasicGame{
 	public void init(GameContainer gc) throws SlickException {
 		Images.load();
 		chunk = Generator.generate();
+		SunLight light = new SunLight(-20, 0, -4, Color.white);
+		light.illuminate(chunk);
 		Block.setBlockSize(40, 20);
 		
 		EntityManager.init();
