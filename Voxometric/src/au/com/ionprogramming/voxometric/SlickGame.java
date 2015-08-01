@@ -14,10 +14,10 @@ import org.newdawn.slick.SlickException;
 
 public class SlickGame extends BasicGame{
 	
-	private static int width = 1000;
-	private static int height = 600;
+	private static int width = 1280;
+	private static int height = 720;
 	
-	private Chunk chunk = Light.illuminate(Generator.generate());	//TODO: temporary
+	private Chunk chunk;	//TODO: temporary
 	
 	private boolean forward = false;
 	private boolean back = false;
@@ -30,8 +30,7 @@ public class SlickGame extends BasicGame{
 	private double cx = 0;
 	private double cy = 0;
 	private double cz = 0;
-	
-	
+		
 	
 	public SlickGame(String gamename) {
 		super(gamename);
@@ -39,14 +38,27 @@ public class SlickGame extends BasicGame{
 
 	@Override
 	public void init(GameContainer gc) throws SlickException {
+		Images.load();
+		chunk = Generator.generate();
 		Block.setBlockSize(40, 20);
+		
 	}
 
 	@Override
 	public void update(GameContainer gc, int i) throws SlickException {
+		
+		float delta = 60f/gc.getFPS();
+		
+		if(delta > 10){
+			delta = 10;
+		}
+		
+		
+		move(delta);
+		
 		input(gc.getInput());
 		
-		move();
+	
 		
 	}
 
@@ -65,9 +77,6 @@ public class SlickGame extends BasicGame{
 			appgc.setDisplayMode(width, height, false);
 			appgc.setTargetFrameRate(60);
 			appgc.setAlwaysRender(true);
-	
-			
-//			appgc.setShowFPS(false);
 			appgc.start();
 		}
 		catch (SlickException ex)
@@ -107,90 +116,90 @@ public class SlickGame extends BasicGame{
 		up = i.isKeyDown(Input.KEY_SPACE);
 	}
 	
-	public void move(){
+	public void move(float delta){
 		switch(angle){
 			case 0:
 				if(left){
-					cx -= speed;
-					cy += speed;
+					cx -= speed*delta;
+					cy += speed*delta;
 				}
 				if(right){
-					cx += speed;
-					cy -= speed;
+					cx += speed*delta;
+					cy -= speed*delta;
 				}
 				if(forward){
-					cy -= speed;
-					cx -= speed;
+					cy -= speed*delta;
+					cx -= speed*delta;
 				}
 				if(back){
-					cy += speed;
-					cx += speed;
+					cy += speed*delta;
+					cx += speed*delta;
 				}
 				break;
 				
 			case 1:
 				if(left){
-					cy += speed;
-					cx += speed;
+					cy += speed*delta;
+					cx += speed*delta;
 				}
 				if(right){
-					cy -= speed;
-					cx -= speed;
+					cy -= speed*delta;
+					cx -= speed*delta;
 				}
 				if(forward){
-					cx -= speed;
-					cy += speed;
+					cx -= speed*delta;
+					cy += speed*delta;
 				}
 				if(back){
-					cx += speed;
-					cy -= speed;
+					cx += speed*delta;
+					cy -= speed*delta;
 				}
 				break;
 				
 			case 2:
 				if(left){
-					cx += speed;
-					cy -= speed;
+					cx += speed*delta;
+					cy -= speed*delta;
 				}
 				if(right){
-					cx -= speed;
-					cy += speed;
+					cx -= speed*delta;
+					cy += speed*delta;
 				}
 				if(forward){
-					cy += speed;
-					cx += speed;
+					cy += speed*delta;
+					cx += speed*delta;
 				}
 				if(back){
-					cy -= speed;
-					cx -= speed;
+					cy -= speed*delta;
+					cx -= speed*delta;
 				}
 				break;
 				
 			case 3:
 				if(left){
-					cy -= speed;
-					cx -= speed;	
+					cy -= speed*delta;
+					cx -= speed*delta;	
 				}
 				if(right){
-					cy += speed;
-					cx += speed;
+					cy += speed*delta;
+					cx += speed*delta;
 				}
 				if(forward){
-					cx += speed;
-					cy -= speed;
+					cx += speed*delta;
+					cy -= speed*delta;
 				}
 				if(back){
-					cx -= speed;
-					cy += speed;
+					cx -= speed*delta;
+					cy += speed*delta;
 				}
 				break;
 		}
 		
 		if(up){
-			cz += speed;
+			cz += speed*delta;
 		}
 		if(down){
-			cz -= speed;
+			cz -= speed*delta;
 		}
 	}
 	

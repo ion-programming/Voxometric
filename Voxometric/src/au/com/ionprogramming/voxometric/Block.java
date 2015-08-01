@@ -2,6 +2,7 @@ package au.com.ionprogramming.voxometric;
 
 import org.newdawn.slick.Color;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.geom.Polygon;
 import org.newdawn.slick.geom.Transform;
 
@@ -9,6 +10,7 @@ public class Block {
 
 	int x, y, z;
 	Color top, xmin, xmax, ymin, ymax, t, s;
+	Image topTex, lTex, rTex;
 	static int width;
 	static int height;
 	static double sideLength;
@@ -21,19 +23,29 @@ public class Block {
 	int coveredFaces = 0;	//bits: ymax, ymin, xmax, xmin, top
 	private boolean isTransparent = false;
 	private boolean renderTag = false;
+	private boolean textured = false;
 
-	public Block(int x, int y, int z, Color t, Color s){
+	public Block(int x, int y, int z){
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+	
+	public void setColor(Color t, Color s){
 		this.t = t;
 		this.s = s;
-		
 		top = t;
 		xmin = s;
 		xmax = s;
 		ymin = s;
 		ymax = s;
+	}
+	
+	public void setTexture(Image t, Image l, Image r){
+		topTex = t;
+		lTex = l;
+		rTex = r;
+		textured = true;
 	}
 	
 	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
@@ -106,28 +118,41 @@ public class Block {
 				drawRight = (coveredFaces/16 & 1) == 0;
 		}
 		Transform t = null;
-		if(drawTop || drawLeft || drawRight){
+		if((drawTop || drawLeft || drawRight) && ! textured){
 			t = Transform.createTranslateTransform(deltaX, deltaY);
 		}
-		if(drawTop){
-			g.setColor(top);
-			g.fill(topPoly.transform(t));
-			g.setColor(outline);
-			g.draw(topPoly.transform(t));
+		if(textured){
+			if(drawTop){
+				g.drawImage(topTex, deltaX - Block.width/2, deltaY - Block.height/2);
+			}
+			if(drawLeft){
+				g.drawImage(lTex, deltaX - Block.width/2, deltaY);
+			}
+			if(drawRight){
+				g.drawImage(rTex, deltaX, deltaY);
+			}
 		}
-		if(drawLeft){
-			g.setColor(cl);
-			g.fill(leftPoly.transform(t));
-			g.setColor(outline);
-			g.draw(leftPoly.transform(t));
+		else {
+			if(drawTop){
+				g.setColor(top);
+				g.fill(topPoly.transform(t));
+				g.setColor(outline);
+				g.draw(topPoly.transform(t));
+			}
+			if(drawLeft){
+				g.setColor(cl);
+				g.fill(leftPoly.transform(t));
+				g.setColor(outline);
+				g.draw(leftPoly.transform(t));
+			}
+			if(drawRight){
+				g.setColor(cr);
+				g.fill(rightPoly.transform(t));
+				g.setColor(outline);
+				g.draw(rightPoly.transform(t));
+			}
 		}
-		if(drawRight){
-			g.setColor(cr);
-			g.fill(rightPoly.transform(Transform.createTranslateTransform(deltaX, deltaY)));
-			g.setColor(outline);
-			g.draw(rightPoly.transform(t));
-		}
-		renderTag = false;
+		
 	}
 	
 	public static void setBlockSize(int width, int height){

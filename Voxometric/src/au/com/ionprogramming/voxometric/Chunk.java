@@ -177,9 +177,26 @@ public class Chunk {
 				break;
 		}
 	}
-	
+	int counter = 0;
 	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
-		setRenderTags(angle);	//TODO: call from chunk update method
+		counter++;
+		
+		if(counter > 1){
+			
+			for(int z = 0; z < chunkSize; z++){
+				for(int y = 0; y < chunkSize; y++){
+					for(int x = 0; x < chunkSize; x++){
+						if(chunkData[x][y][z] != null){
+							chunkData[x][y][z].setRenderTag(false);
+						}
+					}
+				}
+			}
+			
+			setRenderTags(angle); //TODO: call from chunk update method
+			counter = 0;
+		}
+			
 		for(int z = 0; z < chunkSize; z++){
 			switch(angle){
 				case 0:

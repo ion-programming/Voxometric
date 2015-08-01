@@ -10,7 +10,8 @@ public class Water extends Block {
 	static Color side = top;
 	
 	public Water(int x, int y, int z) {
-		super(x, y, z, top, side);
+		super(x, y, z);
+		setColor(top, side);
 		setTransparent(true);
 		
 	}

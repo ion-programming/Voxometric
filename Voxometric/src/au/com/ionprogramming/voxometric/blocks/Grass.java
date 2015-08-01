@@ -5,12 +5,14 @@ import org.newdawn.slick.Color;
 import au.com.ionprogramming.voxometric.Block;
 
 public class Grass extends Block {
-
-	static Color top = new Color(0, 128, 0);
-	static Color side = new Color(112, 28, 0);
+	
+	static Color cGrassTop = new Color(0, 128, 0);
+	static Color cGrassSides = new Color(100, 0, 0);
 	
 	public Grass(int x, int y, int z) {
-		super(x, y, z, top, side);
+		super(x, y, z);
+		setColor(cGrassTop, cGrassSides);
+//		setTexture(Images.topGrass, Images.lGrass, Images.rGrass);
 		
 	}
 
