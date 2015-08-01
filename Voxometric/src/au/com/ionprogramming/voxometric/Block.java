@@ -1,8 +1,9 @@
 package au.com.ionprogramming.voxometric;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Polygon;
+import org.newdawn.slick.Color;
+import org.newdawn.slick.Graphics;
+import org.newdawn.slick.geom.Polygon;
+import org.newdawn.slick.geom.Transform;
 
 public class Block {
 
@@ -15,7 +16,12 @@ public class Block {
 	static Polygon topPoly;
 	static Polygon leftPoly;
 	static Polygon rightPoly;
+	static Color outline = new Color(0, 0, 0, 0.25f);
 	
+	int coveredFaces = 0;	//bits: ymax, ymin, xmax, xmin, top
+	private boolean isTransparent = false;
+	private boolean renderTag = false;
+
 	public Block(int x, int y, int z, Color t, Color s){
 		this.x = x;
 		this.y = y;
@@ -31,60 +37,97 @@ public class Block {
 	}
 	
 	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
+		if(coveredFaces == 31 || !renderTag){
+			return;
+		}
 		int dx = x - (int)cx;
 		int dy = y - (int)cy;
 		int dz = z - (int)cz;
 		int deltaX = 0;
 		int deltaY = 0;
+		switch(angle){
+			case 0:
+				deltaX = (dx - dy)*Block.width/2
+						- (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Block.width/2);
+				deltaY = (dx + dy)*Block.height/2
+						- (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Block.height/2 - (cz - (int)cz)*Block.height);
+				break;
+			case 1:
+				deltaX = (-dy - dx)*Block.width/2 
+						- (int)(((-cy + (int)cy + 0.5) - (cx - (int)cx - 0.5))*Block.width/2);
+				deltaY = (-dy + dx)*Block.height/2 
+						- (int)(((-cy + (int)cy + 0.5) + (cx - (int)cx - 0.5))*Block.height/2 - (cz - (int)cz)*Block.height);
+				break;
+			case 2:
+				deltaX = -(dx - dy)*Block.width/2 
+						+ (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Block.width/2);
+				deltaY = - (dx + dy)*Block.height/2 
+						+ (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Block.height/2 + (cz - (int)cz)*Block.height);
+				break;
+			case 3:
+				deltaX = -((-dy - dx)*Block.width/2 
+						- (int)(((-cy + (int)cy + 0.5) - (cx - (int)cx - 0.5))*Block.width/2));
+				deltaY = - (-dy + dx)*Block.height/2 
+						+ (int)(((-cy + (int)cy + 0.5) + (cx - (int)cx - 0.5))*Block.height/2 + (cz - (int)cz)*Block.height);
+		}
+		deltaX += width/2;
+		deltaY += height/2 - dz*Block.height;
+		if(deltaX < -Block.width/2 || deltaX > width + Block.width/2 || deltaY < -3*Block.height/2 || deltaY > height + Block.height/2){
+			return;	//not on screen
+		}
+		boolean drawLeft = true;
+		boolean drawRight = true;
+		boolean drawTop = (coveredFaces & 1) == 0;
 		Color cl = new Color(0, 0, 0);
 		Color cr = new Color(0, 0, 0);
 		switch(angle){
 			case 0:
 				cl = ymax;
 				cr = xmax;
-				deltaX = (dx - dy)*Block.width/2
-						- (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Math.cos(phi)*sideLength);
-				deltaY = -dz*Block.height + (dx + dy)*Block.height/2
-						- (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Math.sin(phi)*sideLength - (cz - (int)cz)*Block.height);
+				drawLeft = (coveredFaces/16 & 1) == 0;
+				drawRight = (coveredFaces/4 & 1) == 0;
 				break;
 			case 1:
 				cl = xmax;
 				cr = ymin;
-				deltaX = (-dy - dx)*Block.width/2 
-						- (int)(((-cy + (int)cy - 0.5) - (cx - (int)cx - 0.5))*Math.cos(phi)*sideLength);
-				deltaY = -dz*Block.height - (-dy + dx)*Block.height/2 
-						+ (int)(((-cy + (int)cy - 0.5) + (cx - (int)cx - 0.5))*Math.sin(phi)*sideLength + (cz - (int)cz)*Block.height);
+				drawLeft = (coveredFaces/4 & 1) == 0;
+				drawRight = (coveredFaces/8 & 1) == 0;
 				break;
 			case 2:
 				cl = ymin;
 				cr = xmin;
-				deltaX = -((dx - dy)*Block.width/2 
-						- (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Math.cos(phi)*sideLength));
-				deltaY = -dz*Block.height + (dx + dy)*Block.height/2 
-						- (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Math.sin(phi)*sideLength - (cz - (int)cz)*Block.height);
+				drawLeft = (coveredFaces/8 & 1) == 0;
+				drawRight = (coveredFaces/2 & 1) == 0;
 				break;
 			case 3:
 				cl = xmin;
 				cr = ymax;
-				deltaX = -((-dy - dx)*Block.width/2 
-						- (int)(((-cy + (int)cy - 0.5) - (cx - (int)cx - 0.5))*Math.cos(phi)*sideLength));
-				deltaY = -dz*Block.height + (-dy + dx)*Block.height/2 
-						- (int)(((-cy + (int)cy - 0.5) + (cx - (int)cx - 0.5))*Math.sin(phi)*sideLength - (cz - (int)cz)*Block.height);
+				drawLeft = (coveredFaces/2 & 1) == 0;
+				drawRight = (coveredFaces/16 & 1) == 0;
 		}
-		deltaX += width/2;
-		deltaY += height/2;
-		topPoly.translate(deltaX, deltaY);
-		leftPoly.translate(deltaX, deltaY);
-		rightPoly.translate(deltaX, deltaY);
-		g.setColor(top);
-		g.fillPolygon(topPoly);
-		g.setColor(cl);
-		g.fillPolygon(leftPoly);
-		g.setColor(cr);
-		g.fillPolygon(rightPoly);
-		topPoly.translate(-deltaX, -deltaY);
-		leftPoly.translate(-deltaX, -deltaY);
-		rightPoly.translate(-deltaX, -deltaY);
+		Transform t = null;
+		if(drawTop || drawLeft || drawRight){
+			t = Transform.createTranslateTransform(deltaX, deltaY);
+		}
+		if(drawTop){
+			g.setColor(top);
+			g.fill(topPoly.transform(t));
+			g.setColor(outline);
+			g.draw(topPoly.transform(t));
+		}
+		if(drawLeft){
+			g.setColor(cl);
+			g.fill(leftPoly.transform(t));
+			g.setColor(outline);
+			g.draw(leftPoly.transform(t));
+		}
+		if(drawRight){
+			g.setColor(cr);
+			g.fill(rightPoly.transform(Transform.createTranslateTransform(deltaX, deltaY)));
+			g.setColor(outline);
+			g.draw(rightPoly.transform(t));
+		}
+		renderTag = false;
 	}
 	
 	public static void setBlockSize(int width, int height){
@@ -92,14 +135,27 @@ public class Block {
 		Block.height = height;
 		sideLength = Math.sqrt(width*width + height*height)/2;
 		Block.phi = Math.atan(((double)height)/((double)width));
-		int[] xVals = new int[]{-width/2, 0, width/2, 0};
-		int[] yVals = new int[]{0, -height/2, 0, height/2};
-		topPoly = new Polygon(xVals, yVals, 4);
-		xVals = new int[]{-width/2, 0, 0, -width/2};
-		yVals = new int[]{0, height/2, 3*height/2, height};
-		leftPoly = new Polygon(xVals, yVals, 4);
-		xVals = new int[]{0, width/2, width/2, 0};
-		yVals = new int[]{height/2, 0, height, 3*height/2};
-		rightPoly = new Polygon(xVals, yVals, 4);
+		float[] points = new float[]{-width/2, 0, 0, -height/2, width/2, 0, 0, height/2}; 
+		topPoly = new Polygon(points);
+		points = new float[]{-width/2, 0, 0, height/2, 0, 3*height/2, -width/2, height}; 
+		leftPoly = new Polygon(points);
+		points = new float[]{0, height/2, width/2, 0, width/2, height, 0, 3*height/2};
+		rightPoly = new Polygon(points);
+	}
+
+	public boolean isTransparent() {
+		return isTransparent;
+	}
+
+	public void setTransparent(boolean isTransparent) {
+		this.isTransparent = isTransparent;
+	}
+
+	public boolean isRenderTagged() {
+		return renderTag;
+	}
+
+	public void setRenderTag(boolean renderTag) {
+		this.renderTag = renderTag;
 	}
 }

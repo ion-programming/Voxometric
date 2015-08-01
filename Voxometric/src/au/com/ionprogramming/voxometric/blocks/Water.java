@@ -4,13 +4,14 @@ import org.newdawn.slick.Color;
 
 import au.com.ionprogramming.voxometric.Block;
 
-public class Grass extends Block {
+public class Water extends Block {
 
-	static Color top = new Color(0, 128, 0);
-	static Color side = new Color(112, 28, 0);
+	static Color top = new Color(0, 0, 1f, 0.5f);
+	static Color side = top;
 	
-	public Grass(int x, int y, int z) {
+	public Water(int x, int y, int z) {
 		super(x, y, z, top, side);
+		setTransparent(true);
 		
 	}
 
