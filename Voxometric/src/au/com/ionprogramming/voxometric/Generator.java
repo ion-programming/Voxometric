@@ -11,7 +11,7 @@ public class Generator {
 	static Random r = new Random();
 	
 	public static Chunk generate(){
-		int chunkSize = 64;
+		int chunkSize = 128;
 		Block[][][] blocks = new Block[chunkSize][chunkSize][chunkSize];
 		for(int z = 0; z < chunkSize; z++){
 			for(int y = 0; y < chunkSize - z; y++){

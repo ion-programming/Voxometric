@@ -20,6 +20,13 @@ public class Block {
 	static Polygon rightPoly;
 	static Color outline = new Color(0, 0, 0, 0.25f);
 	
+	private static int prevAng = -1;
+	private static double prevCx = Double.NaN;
+	private static double prevCy = Double.NaN;
+	private static double prevCz = Double.NaN;
+	private static int xOffset = 0;
+	private static int yOffset = 0;
+	
 	int coveredFaces = 0;	//bits: ymax, ymin, xmax, xmin, top
 	private boolean isTransparent = false;
 	private boolean renderTag = false;
@@ -39,11 +46,6 @@ public class Block {
 		xmax = Color.black;
 		ymin = Color.black;
 		ymax = Color.black;
-//		top = t;
-//		xmin = s;
-//		xmax = s;
-//		ymin = s;
-//		ymax = s;
 	}
 	
 	public void setTexture(Image t, Image l, Image r){
@@ -53,9 +55,36 @@ public class Block {
 		textured = true;
 	}
 	
+	private void setOffsets(int angle, double cx, double cy, double cz){
+			prevAng = angle;
+			prevCx = cx;
+			prevCy = cy;
+			prevCz = cz;
+			switch(angle){
+				case 0:
+					xOffset = - (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Block.width/2);
+					yOffset = - (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Block.height/2 - (cz - (int)cz)*Block.height);
+					break;
+				case 1:
+					xOffset = - (int)(((-cy + (int)cy + 0.5) - (cx - (int)cx - 0.5))*Block.width/2);
+					yOffset = - (int)(((-cy + (int)cy + 0.5) + (cx - (int)cx - 0.5))*Block.height/2 - (cz - (int)cz)*Block.height);
+					break;
+				case 2:
+					xOffset = (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Block.width/2);
+					yOffset = (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Block.height/2 + (cz - (int)cz)*Block.height);
+					break;
+				case 3:
+					xOffset = (int)(((-cy + (int)cy + 0.5) - (cx - (int)cx - 0.5))*Block.width/2);
+					yOffset = (int)(((-cy + (int)cy + 0.5) + (cx - (int)cx - 0.5))*Block.height/2 + (cz - (int)cz)*Block.height);
+			}
+	}
+	
 	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
-		if(coveredFaces == 31 || !renderTag){
+		if(!renderTag){
 			return;
+		}
+		if(prevAng != angle || prevCx != cx || prevCy != cy || prevCz != cz){
+			setOffsets(angle, cx, cy, cz);
 		}
 		int dx = x - (int)cx;
 		int dy = y - (int)cy;
@@ -64,39 +93,31 @@ public class Block {
 		int deltaY = 0;
 		switch(angle){
 			case 0:
-				deltaX = (dx - dy)*Block.width/2
-						- (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Block.width/2);
-				deltaY = (dx + dy)*Block.height/2
-						- (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Block.height/2 - (cz - (int)cz)*Block.height);
+				deltaX = (dx - dy)*Block.width/2;
+				deltaY = (dx + dy)*Block.height/2;
 				break;
 			case 1:
-				deltaX = (-dy - dx)*Block.width/2 
-						- (int)(((-cy + (int)cy + 0.5) - (cx - (int)cx - 0.5))*Block.width/2);
-				deltaY = (-dy + dx)*Block.height/2 
-						- (int)(((-cy + (int)cy + 0.5) + (cx - (int)cx - 0.5))*Block.height/2 - (cz - (int)cz)*Block.height);
+				deltaX = (-dy - dx)*Block.width/2;
+				deltaY = (-dy + dx)*Block.height/2;
 				break;
 			case 2:
-				deltaX = -(dx - dy)*Block.width/2 
-						+ (int)(((cx - (int)cx - 0.5) - (cy - (int)cy - 0.5))*Block.width/2);
-				deltaY = - (dx + dy)*Block.height/2 
-						+ (int)(((cx - (int)cx - 0.5) + (cy - (int)cy - 0.5))*Block.height/2 + (cz - (int)cz)*Block.height);
+				deltaX = -(dx - dy)*Block.width/2;
+				deltaY = - (dx + dy)*Block.height/2;
 				break;
 			case 3:
-				deltaX = -((-dy - dx)*Block.width/2 
-						- (int)(((-cy + (int)cy + 0.5) - (cx - (int)cx - 0.5))*Block.width/2));
-				deltaY = - (-dy + dx)*Block.height/2 
-						+ (int)(((-cy + (int)cy + 0.5) + (cx - (int)cx - 0.5))*Block.height/2 + (cz - (int)cz)*Block.height);
+				deltaX = -(-dy - dx)*Block.width/2;
+				deltaY = - (-dy + dx)*Block.height/2;
 		}
-		deltaX += width/2;
-		deltaY += height/2 - dz*Block.height;
+		deltaX += width/2 + xOffset;
+		deltaY += height/2 - dz*Block.height + yOffset;
 		if(deltaX < -Block.width/2 || deltaX > width + Block.width/2 || deltaY < -3*Block.height/2 || deltaY > height + Block.height/2){
 			return;	//not on screen
 		}
 		boolean drawLeft = true;
 		boolean drawRight = true;
 		boolean drawTop = (coveredFaces & 1) == 0;
-		Color cl = new Color(0, 0, 0);
-		Color cr = new Color(0, 0, 0);
+		Color cl = null;
+		Color cr = null;
 		switch(angle){
 			case 0:
 				cl = ymax;
@@ -122,10 +143,6 @@ public class Block {
 				drawLeft = (coveredFaces/2 & 1) == 0;
 				drawRight = (coveredFaces/16 & 1) == 0;
 		}
-		Transform t = null;
-		if((drawTop || drawLeft || drawRight) && ! textured){
-			t = Transform.createTranslateTransform(deltaX, deltaY);
-		}
 		if(textured){
 			if(drawTop){
 				g.drawImage(topTex, deltaX - Block.width/2, deltaY - Block.height/2);
@@ -138,6 +155,7 @@ public class Block {
 			}
 		}
 		else {
+			Transform t = Transform.createTranslateTransform(deltaX, deltaY);
 			if(drawTop){
 				g.setColor(top);
 				g.fill(topPoly.transform(t));
@@ -158,6 +176,30 @@ public class Block {
 			}
 		}
 		
+	}
+	
+	public boolean isCovered(int angle){
+		boolean lCov = false;
+		boolean rCov = false;
+		boolean tCov = (coveredFaces & 1) != 0;
+		switch(angle){
+			case 0:
+				lCov = (coveredFaces/16 & 1) != 0;
+				rCov = (coveredFaces/4 & 1) != 0;
+				break;
+			case 1:
+				lCov = (coveredFaces/4 & 1) != 0;
+				rCov = (coveredFaces/8 & 1) != 0;
+				break;
+			case 2:
+				lCov = (coveredFaces/8 & 1) != 0;
+				rCov = (coveredFaces/2 & 1) != 0;
+				break;
+			case 3:
+				lCov = (coveredFaces/2 & 1) != 0;
+				rCov = (coveredFaces/16 & 1) != 0;
+		}
+		return lCov && rCov && tCov;
 	}
 	
 	public static void setBlockSize(int width, int height){
