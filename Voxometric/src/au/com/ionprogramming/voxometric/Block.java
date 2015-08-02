@@ -34,11 +34,16 @@ public class Block {
 	public void setColor(Color t, Color s){
 		this.t = t;
 		this.s = s;
-		top = t;
-		xmin = s;
-		xmax = s;
-		ymin = s;
-		ymax = s;
+		top = Color.black;
+		xmin = Color.black;
+		xmax = Color.black;
+		ymin = Color.black;
+		ymax = Color.black;
+//		top = t;
+//		xmin = s;
+//		xmax = s;
+//		ymin = s;
+//		ymax = s;
 	}
 	
 	public void setTexture(Image t, Image l, Image r){
