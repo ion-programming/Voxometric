@@ -144,12 +144,12 @@ public class ChunkManager {
 					if(start.length >= 4 && start[0].equals("+") && start[1].equals(x + "") && start[2].equals(y + "") && start[3].equals(z + "")){
 						create = false;
 						out.write("+ " + x + " " + y + " " + z + " ");
-						int id = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[0][0][0].getClass().getTypeName());
+						int id = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[0][0][0].getClass().getName());
 						int lineCount = 1;
 						for(int i = 0; i < chunkSize; i++){
 							for(int j = 0; j < chunkSize; j++){
 								for(int k = 0; k < chunkSize; k++){
-									int nextID = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[x][y][z].getClass().getTypeName());
+									int nextID = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[x][y][z].getClass().getName());
 									if(id != nextID){
 										out.write(id + ":" + lineCount + " ");
 										lineCount = 0;
@@ -168,12 +168,12 @@ public class ChunkManager {
 				}
 				if(create){
 					out.write("+ " + x + " " + y + " " + z + " ");
-					int id = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[0][0][0].getClass().getTypeName());
+					int id = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[0][0][0].getClass().getName());
 					int lineCount = 1;
 					for(int i = 0; i < chunkSize; i++){
 						for(int j = 0; j < chunkSize; j++){
 							for(int k = 0; k < chunkSize; k++){
-								int nextID = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[x][y][z].getClass().getTypeName());
+								int nextID = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[x][y][z].getClass().getName());
 								if(id != nextID){
 									out.write(id + ":" + lineCount + " ");
 									lineCount = 0;

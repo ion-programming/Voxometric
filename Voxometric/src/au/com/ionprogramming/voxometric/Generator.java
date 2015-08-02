@@ -17,13 +17,13 @@ public class Generator {
 			for(int y = 0; y < chunkSize - z; y++){
 				for(int x = 0; x < chunkSize - z; x++){
 					int rand = r.nextInt(10);
-					if(rand >= 9){
+					if(rand >= 8){
 						blocks[x][y][z] = new Water(x, y, z);
 					}
-					else if(rand < 1){
+					else if(rand <= 1){
 						blocks[x][y][z] = new Emerald(x, y, z);
 					}
-					else{
+					else if(rand < 8){
 						blocks[x][y][z] = new Grass(x, y, z);
 					}
 				}
