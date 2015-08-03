@@ -5,8 +5,11 @@ import au.com.ionprogramming.voxometric.SlickGame;
 
 public class Player extends MovingEntity {
 
-	public Player(double x, double y, double z) {
+	private SlickGame game;
+
+	public Player(double x, double y, double z, SlickGame game) {
 		super(x, y, z);
+		this.game = game;
 	}
 
 	@Override
@@ -96,9 +99,9 @@ public class Player extends MovingEntity {
 			z -= speed*delta;
 		}
 		
-		SlickGame.cx = x;
-		SlickGame.cy = y;
-		SlickGame.cz = z;
+		game.cx = x;
+		game.cy = y;
+		game.cz = z;
 	}
 }
 

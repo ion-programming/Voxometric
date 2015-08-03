@@ -16,18 +16,17 @@ public class Light {
 		this.c = c;
 	}
 	
-	public static Chunk illuminate(Chunk input){
-		for(int lx = 0; lx < input.chunkSize; lx++){
-			for(int ly = 0; ly < input.chunkSize; ly++){
-				for(int lz = 0; lz < input.chunkSize; lz++){
-					if(input.chunkData[lx][ly][lz] != null){
+	public static Chunk illuminate(Chunk chunk){
+		for(int lx = 0; lx < Chunk.chunkSize; lx++){
+			for(int ly = 0; ly < Chunk.chunkSize; ly++){
+				for(int lz = 0; lz < Chunk.chunkSize; lz++){
+					if(chunk.getBlock(lx, ly, lz) != null){
 //						input.chunkData[lx][ly][lz].xmax.darker();
 					}
 				}
 			}
 		}
-		
-		return input;
+		return chunk;
 	}
 	
 //	public double distance(int x1, int y1, int z1, int x2, int y2, int z2){
