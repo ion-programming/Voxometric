@@ -1,198 +1,102 @@
 package au.com.ionprogramming.voxometric;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+
+import org.newdawn.slick.Graphics;
 
 public class ChunkManager {
-	private int oX, oY, oZ;
-	private Chunk[][][] chunks;
-	private String worldFile = "C:/Users/Sam/Desktop/world.vox";
-	private int chunkSize;
+
+	private HashMap<Vector, Chunk> chunks;
 	private BlockList blockList;
-	
-	public ChunkManager(){
-		chunks = new Chunk[1][1][1];
-		oX = oY = oZ = 0;
+	private MapGenerator mapGenerator;
+
+	public ChunkManager(MapGenerator mapGenerator) {
+		this.mapGenerator = mapGenerator;
+		chunks = new HashMap<Vector, Chunk>();
+		generateChunk(0, 0, 0);
 		blockList = new BlockList();
 	}
-	
+
 	public BlockList getBlockList(){
 		return blockList;
 	}
-	
+
 	public void setBlockList(BlockList blockList){
 		this.blockList = blockList;
 	}
-	
+
+	public Vector[] getKeys() {
+		return getChunks().keySet().toArray(new Vector[getChunks().keySet().size()]);
+	}
+
+	public Vector[] getSortedKeys(final int angle) {
+		Vector[] vectors = getKeys();
+		Arrays.sort(vectors, new Comparator<Vector>() {
+			@Override
+			public int compare(Vector v1, Vector v2) {
+				return Math.round(v2.getCameraDistance(angle) - v1.getCameraDistance(angle));
+			}
+		});
+		return vectors;
+	}
+
 	public void addChunk(Chunk c, int x, int y, int z){
-		int aX = x + oX;
-		int aY = y + oY;
-		int aZ = z + oZ;
-		if(aX < 0){
-			
-		}
-		else if(aX > chunks.length - 1){
-			
-		}
-		if(aY < 0){
-			
-		}
-		else if(aY > chunks[0].length - 1){
-			
-		}
-		if(aZ < 0){
-			
-		}
-		else if(aZ > chunks[0][0].length - 1){
-			
+		addChunk(c, new Vector(x, y, z));
+	}
+
+	public void addChunk(Chunk c, Vector v) {
+		chunks.put(v, c);
+	}
+
+	public void generateChunk(int x, int y, int z) {
+		generateChunk(new Vector(x, y, z));
+	}
+
+	public void generateChunk(Vector v) {
+		chunks.put(v, mapGenerator.generate(v));
+	}
+
+	public void generateChunks(Vector[] vectors) {
+		for (Vector v : vectors) {
+			generateChunk(v);
 		}
 	}
-	
-	private Chunk loadChunk(int x, int y, int z){
-		try{
-			BufferedReader in = new BufferedReader(new FileReader(worldFile));
-			try{
-				String[] line;
-				if((line = in.readLine().split(" ")) != null){
-					try{
-						chunkSize = Integer.parseInt(line[0]);
-					}
-					catch(NumberFormatException e){
-						System.err.println("Unable to load chunk size!");
-						in.close();
-						return null;
-					}
-				}
-				while((line = in.readLine().split(" ")) != null){
-					if(line[0].equals(x + "") && line[1].equals(y + "") && line[2].equals(z + "")){
-						Block[][][] chunkData = new Block[chunkSize][chunkSize][chunkSize];
-						int i, j, k;
-						i = j = k = 0;
-						for(int m = 3; m < line.length; m++){
-							if(line[m].indexOf(':') != -1){
-								String[] word = line[m].split(":");
-								for(int n = 0; n < Integer.parseInt(word[1]); n++){
-									if(i == chunkSize){
-										i = 0;
-										j++;
-										if(j == chunkSize){
-											j = 0;
-											k++;
-											if(k == chunkSize){
-												return new Chunk(chunkSize, chunkData);
-											}
-										}
-									}
-									try{
-										chunkData[i][j][k] = (Block)(Class.forName(blockList.getClassName(Integer.parseInt(word[0]))).newInstance());
-									}
-									catch(Exception e){
-										chunkData[i][j][k] = null;
-										System.err.println("Unable to find class with id: " + word[0]);
-									}
-									i++;
-								}
-							}
-							else{
-								if(i == chunkSize){
-									i = 0;
-									j++;
-									if(j == chunkSize){
-										j = 0;
-										k++;
-										if(k == chunkSize){
-											return new Chunk(chunkSize, chunkData);
-										}
-									}
-								}
-								try{
-									chunkData[i][j][k] = (Block)(Class.forName(blockList.getClassName(Integer.parseInt(line[m]))).newInstance());
-								}
-								catch(Exception e){
-									chunkData[i][j][k] = null;
-									System.err.println("Unable to find class with id: " + line[m]);
-								}
-								i++;
-							}
-						}
-						return new Chunk(chunkSize, chunkData);
-					}
-				}
-			}
-			finally{
-				in.close();
-			}
+
+	public void generateChunks(int... ints) {
+		for (int i = 2; i < ints.length; i += 3) {
+			generateChunk(ints[i-2], ints[i-1], ints[i]);
 		}
-		catch(IOException e){
-			System.err.println("Unable to find save file: " + worldFile);
-		}
-		return null;
 	}
-	
-	private void saveChunk(int x, int y, int z){
-		try{
-			BufferedReader in = new BufferedReader(new FileReader(worldFile));
-			BufferedWriter out = new BufferedWriter(new FileWriter(worldFile + "_"));
-			try{
-				boolean create = true;
-				String line;
-				while((line = in.readLine()) != null){
-					String[] start = line.split(" ", 5);
-					if(start.length >= 4 && start[0].equals("+") && start[1].equals(x + "") && start[2].equals(y + "") && start[3].equals(z + "")){
-						create = false;
-						out.write("+ " + x + " " + y + " " + z + " ");
-						int id = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[0][0][0].getClass().getName());
-						int lineCount = 1;
-						for(int i = 0; i < chunkSize; i++){
-							for(int j = 0; j < chunkSize; j++){
-								for(int k = 0; k < chunkSize; k++){
-									int nextID = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[x][y][z].getClass().getName());
-									if(id != nextID){
-										out.write(id + ":" + lineCount + " ");
-										lineCount = 0;
-									}
-									lineCount++;
-								}
-							}
-						}
-						out.write(id + ":" + lineCount + " ");
-						out.newLine();
-					}
-					else{
-						out.write(line);
-						out.newLine();
-					}
-				}
-				if(create){
-					out.write("+ " + x + " " + y + " " + z + " ");
-					int id = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[0][0][0].getClass().getName());
-					int lineCount = 1;
-					for(int i = 0; i < chunkSize; i++){
-						for(int j = 0; j < chunkSize; j++){
-							for(int k = 0; k < chunkSize; k++){
-								int nextID = blockList.getBlockID(chunks[x + oX][y + oY][z + oZ].chunkData[x][y][z].getClass().getName());
-								if(id != nextID){
-									out.write(id + ":" + lineCount + " ");
-									lineCount = 0;
-								}
-								lineCount++;
-							}
-						}
-					}
-					out.write(id + ":" + lineCount + " ");
-					out.newLine();
-				}
-			}
-			finally{
-				in.close();
-				out.close();
-			}
+
+	public HashMap<Vector, Chunk> getChunks() {
+		return chunks;
+	}
+
+	public Chunk getChunk(Vector key) {
+		return chunks.get(key);
+	}
+
+	public Collection<Chunk> getChunkList() {
+		return chunks.values();
+	}
+
+	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz) {
+		System.out.println("\n\nChunkManager.render()");
+		Vector[] vectors = getSortedKeys(angle);
+		for (int i = 0; i < vectors.length; i++) {
+			Chunk chunk = chunks.get(vectors[i]);
+			System.out.println(vectors[i].equals(new Vector(0, 0, 0)));
+			System.out.println(chunk);
+			chunk.render(g, width, height, angle, cx+vectors[i].getX()*Chunk.chunkSize, cy+vectors[i].getY()*Chunk.chunkSize, cz+vectors[i].getZ()*Chunk.chunkSize);
 		}
-		catch(IOException e){
-			System.err.println("Unable to find save file: " + worldFile);
+	}
+
+	public void illuminate(SunLight light) {
+		for (Chunk chunk : getChunks().values()) {
+			light.illuminate(chunk);
 		}
 	}
 }

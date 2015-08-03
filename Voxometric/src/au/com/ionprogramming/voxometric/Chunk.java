@@ -4,12 +4,11 @@ import org.newdawn.slick.Graphics;
 
 public class Chunk {
 
-	int chunkSize;
+	public static final int chunkSize = 8;
 	int prevAng = -1;	//TODO: implement proper updating
-	Block[][][] chunkData;
+	private Block[][][] chunkData;
 	
-	public Chunk(int chunkSize, Block[][][] chunkData){
-		this.chunkSize = chunkSize;
+	public Chunk(Block[][][] chunkData){
 		this.chunkData = chunkData;
 		computeCoveredBlocks();
 	}
@@ -177,7 +176,7 @@ public class Chunk {
 		}
 	}
 	
-	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
+	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz) {
 		if(angle != prevAng){ //TODO: implement proper chunk updates
 			prevAng = angle;
 			for(int z = 0; z < chunkSize; z++){
@@ -231,5 +230,13 @@ public class Chunk {
 					}
 			}
 		}
+	}
+
+	public Block getBlock(int x, int y, int z) {
+		return chunkData[x][y][z];
+	}
+
+	public void setBlock(int x, int y, int z, Block block) {
+		chunkData[x][y][z] = block;
 	}
 }

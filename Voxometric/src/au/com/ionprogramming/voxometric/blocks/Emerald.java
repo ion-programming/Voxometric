@@ -6,7 +6,7 @@ import au.com.ionprogramming.voxometric.Block;
 
 public class Emerald extends Block {
 
-	static Color top = new Color(0, 1f, 0, 0.5f);
+	static Color top = new Color(0, 1f, 0.1f, 0.5f);
 	static Color side = top;
 	
 	public Emerald(int x, int y, int z) {
