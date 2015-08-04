@@ -34,70 +34,71 @@ public class SunLight {
 			for(int ly = 0; ly < input.chunkSize; ly++){
 				for(int lz = 0; lz < input.chunkSize; lz++){
 					if(input.chunkData[lx][ly][lz] != null && !input.chunkData[lx][ly][lz].isTextured()){
+						Block block = input.chunkData[lx][ly][lz];
 						
-						int r = (int)(input.chunkData[lx][ly][lz].t.getRed()*c.getRed()/255*(topAng + 90)/180);
-						int g = (int)(input.chunkData[lx][ly][lz].t.getGreen()*c.getGreen()/255*(topAng + 90)/180);
-						int b = (int)(input.chunkData[lx][ly][lz].t.getBlue()*c.getBlue()/255*(topAng + 90)/180);
-						r = check(r + input.chunkData[lx][ly][lz].top.getRed());
-						g = check(g + input.chunkData[lx][ly][lz].top.getGreen());
-						b = check(b + input.chunkData[lx][ly][lz].top.getBlue());
-						if(input.chunkData[lx][ly][lz].isTransparent()){
-							input.chunkData[lx][ly][lz].top = new Color(r, g, b, input.chunkData[lx][ly][lz].t.getAlpha());
+						int r = (int)(block.t.getRed()*c.getRed()/255*(topAng + 90)/180);
+						int g = (int)(block.t.getGreen()*c.getGreen()/255*(topAng + 90)/180);
+						int b = (int)(block.t.getBlue()*c.getBlue()/255*(topAng + 90)/180);
+						r = check(r + block.top.getRed());
+						g = check(g + block.top.getGreen());
+						b = check(b + block.top.getBlue());
+						if(block.isTransparent()){
+							block.top = new Color(r, g, b, block.t.getAlpha());
 						}
 						else{
-							input.chunkData[lx][ly][lz].top = new Color(r, g, b);
+							block.top = new Color(r, g, b);
 						}
 						
-						r = (int)(input.chunkData[lx][ly][lz].s.getRed()*c.getRed()/255*(xmaxAng + 90)/180);
-						g = (int)(input.chunkData[lx][ly][lz].s.getGreen()*c.getGreen()/255*(xmaxAng + 90)/180);
-						b = (int)(input.chunkData[lx][ly][lz].s.getBlue()*c.getBlue()/255*(xmaxAng + 90)/180);
-						r = check(r + input.chunkData[lx][ly][lz].xmax.getRed());
-						g = check(g + input.chunkData[lx][ly][lz].xmax.getGreen());
-						b = check(b + input.chunkData[lx][ly][lz].xmax.getBlue());
-						if(input.chunkData[lx][ly][lz].isTransparent()){
-							input.chunkData[lx][ly][lz].xmax = new Color(r, g, b, input.chunkData[lx][ly][lz].s.getAlpha());
+						r = (int)(block.s.getRed()*c.getRed()/255*(xmaxAng + 90)/180);
+						g = (int)(block.s.getGreen()*c.getGreen()/255*(xmaxAng + 90)/180);
+						b = (int)(block.s.getBlue()*c.getBlue()/255*(xmaxAng + 90)/180);
+						r = check(r + block.xmax.getRed());
+						g = check(g + block.xmax.getGreen());
+						b = check(b + block.xmax.getBlue());
+						if(block.isTransparent()){
+							block.xmax = new Color(r, g, b, block.s.getAlpha());
 						}
 						else{
-							input.chunkData[lx][ly][lz].xmax = new Color(r, g, b);
+							block.xmax = new Color(r, g, b);
 						}
 
-						r = (int)(input.chunkData[lx][ly][lz].s.getRed()*c.getRed()/255*(xminAng + 90)/180);
-						g = (int)(input.chunkData[lx][ly][lz].s.getGreen()*c.getGreen()/255*(xminAng + 90)/180);
-						b = (int)(input.chunkData[lx][ly][lz].s.getBlue()*c.getBlue()/255*(xminAng + 90)/180);
-						r = check(r + input.chunkData[lx][ly][lz].xmin.getRed());
-						g = check(g + input.chunkData[lx][ly][lz].xmin.getGreen());
-						b = check(b + input.chunkData[lx][ly][lz].xmin.getBlue());
-						if(input.chunkData[lx][ly][lz].isTransparent()){
-							input.chunkData[lx][ly][lz].xmin = new Color(r, g, b, input.chunkData[lx][ly][lz].s.getAlpha());
+						r = (int)(block.s.getRed()*c.getRed()/255*(xminAng + 90)/180);
+						g = (int)(block.s.getGreen()*c.getGreen()/255*(xminAng + 90)/180);
+						b = (int)(block.s.getBlue()*c.getBlue()/255*(xminAng + 90)/180);
+						r = check(r + block.xmin.getRed());
+						g = check(g + block.xmin.getGreen());
+						b = check(b + block.xmin.getBlue());
+						if(block.isTransparent()){
+							block.xmin = new Color(r, g, b, block.s.getAlpha());
 						}
 						else{
-							input.chunkData[lx][ly][lz].xmin = new Color(r, g, b);
+							block.xmin = new Color(r, g, b);
 						}
 
-						r = (int)(input.chunkData[lx][ly][lz].s.getRed()*c.getRed()/255*(ymaxAng + 90)/180);
-						g = (int)(input.chunkData[lx][ly][lz].s.getGreen()*c.getGreen()/255*(ymaxAng + 90)/180);
-						b = (int)(input.chunkData[lx][ly][lz].s.getBlue()*c.getBlue()/255*(ymaxAng + 90)/180);
-						r = check(r + input.chunkData[lx][ly][lz].ymax.getRed());
-						g = check(g + input.chunkData[lx][ly][lz].ymax.getGreen());
-						b = check(b + input.chunkData[lx][ly][lz].ymax.getBlue());
-						if(input.chunkData[lx][ly][lz].isTransparent()){
-							input.chunkData[lx][ly][lz].ymax = new Color(r, g, b, input.chunkData[lx][ly][lz].s.getAlpha());
+						r = (int)(block.s.getRed()*c.getRed()/255*(ymaxAng + 90)/180);
+						g = (int)(block.s.getGreen()*c.getGreen()/255*(ymaxAng + 90)/180);
+						b = (int)(block.s.getBlue()*c.getBlue()/255*(ymaxAng + 90)/180);
+						r = check(r + block.ymax.getRed());
+						g = check(g + block.ymax.getGreen());
+						b = check(b + block.ymax.getBlue());
+						if(block.isTransparent()){
+							block.ymax = new Color(r, g, b, block.s.getAlpha());
 						}
 						else{
-							input.chunkData[lx][ly][lz].ymax = new Color(r, g, b);
+							block.ymax = new Color(r, g, b);
 						}
 
-						r = (int)(input.chunkData[lx][ly][lz].s.getRed()*c.getRed()/255*(yminAng + 90)/180);
-						g = (int)(input.chunkData[lx][ly][lz].s.getGreen()*c.getGreen()/255*(yminAng + 90)/180);
-						b = (int)(input.chunkData[lx][ly][lz].s.getBlue()*c.getBlue()/255*(yminAng + 90)/180);
-						r = check(r + input.chunkData[lx][ly][lz].ymin.getRed());
-						g = check(g + input.chunkData[lx][ly][lz].ymin.getGreen());
-						b = check(b + input.chunkData[lx][ly][lz].ymin.getBlue());
-						if(input.chunkData[lx][ly][lz].isTransparent()){
-							input.chunkData[lx][ly][lz].ymin = new Color(r, g, b, input.chunkData[lx][ly][lz].s.getAlpha());
+						r = (int)(block.s.getRed()*c.getRed()/255*(yminAng + 90)/180);
+						g = (int)(block.s.getGreen()*c.getGreen()/255*(yminAng + 90)/180);
+						b = (int)(block.s.getBlue()*c.getBlue()/255*(yminAng + 90)/180);
+						r = check(r + block.ymin.getRed());
+						g = check(g + block.ymin.getGreen());
+						b = check(b + block.ymin.getBlue());
+						if(block.isTransparent()){
+							block.ymin = new Color(r, g, b, block.s.getAlpha());
 						}
 						else{
-							input.chunkData[lx][ly][lz].ymin = new Color(r, g, b);
+							block.ymin = new Color(r, g, b);
 						}
 					}
 				}
