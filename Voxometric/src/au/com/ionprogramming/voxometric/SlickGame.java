@@ -11,6 +11,8 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
+import au.com.ionprogramming.voxometric.blocks.Grass;
+import au.com.ionprogramming.voxometric.blocks.Water;
 import au.com.ionprogramming.voxometric.entities.EntityManager;
 
 public class SlickGame extends BasicGame{
@@ -18,7 +20,7 @@ public class SlickGame extends BasicGame{
 	private static int width = 1280;
 	private static int height = 720;
 	
-	private Chunk chunk;	//TODO: temporary
+//	private Chunk chunk;	//TODO: temporary
 	
 	public static double cx = 0;
 	public static double cy = 0;
@@ -26,6 +28,7 @@ public class SlickGame extends BasicGame{
 	
 	private InputManager input;
 		
+	private ChunkManager cm;
 	
 	public SlickGame(String gamename) {
 		super(gamename);
@@ -34,13 +37,25 @@ public class SlickGame extends BasicGame{
 	@Override
 	public void init(GameContainer gc) throws SlickException {
 		Images.load();
-		chunk = Generator.generate();
+		
+		cm = new ChunkManager(4);
+		BlockList bl = new BlockList();
+		bl.addBlockType(new Grass(0, 0, 0));
+		bl.addBlockType(new Water(0, 0, 0));
+		cm.setBlockList(bl);
+		cm.addChunk(0, 0, 0);
+		cm.addChunk(1, 0, 0);
+		cm.addChunk(0, 1, 0);
+		cm.addChunk(1, 1, 0);
+		
 		SunLight light = new SunLight(-20, 0, -4, Color.darkGray);
-		light.illuminate(chunk);
-		Light light1 = new Light(20, 20, 20, 20, Color.white);
-		light1.illuminate(chunk);
-		Light light2 = new Light(0, 10, 20, 10, Color.white);
-		light2.illuminate(chunk);
+		Light light1 = new Light(20, 20, 20, 30, Color.white);
+		Light light2 = new Light(-10, 0, 10, 20, Color.white);
+		cm.illuminate(light);
+		cm.illuminate(light1);
+		cm.illuminate(light2);
+		cm.saveChunk(cm.loadChunk(0, 0, 0));
+		
 		Block.setBlockSize(40, 20);
 		
 		EntityManager.init();
@@ -68,7 +83,7 @@ public class SlickGame extends BasicGame{
 
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
-		chunk.render(g, width, height, input.getViewAngle() , cx, cy, cz);
+		cm.render(g, width, height, input.getViewAngle() , cx, cy, cz);
 		
 		EntityManager.render(g);
 		

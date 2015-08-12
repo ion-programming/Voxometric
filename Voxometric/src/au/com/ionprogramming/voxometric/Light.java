@@ -18,6 +18,9 @@ public class Light {
 	}
 	
 	public Chunk illuminate(Chunk input){
+		x -= input.chunkSize*input.x;
+		y -= input.chunkSize*input.y;
+		z -= input.chunkSize*input.z;
 		for(int lx = (x - throwRadius > 0? x - throwRadius : 0); lx < (x + throwRadius < input.chunkSize? x + throwRadius : input.chunkSize); lx++){
 			for(int ly = (y - throwRadius > 0? y - throwRadius : 0); ly < (y + throwRadius < input.chunkSize? y + throwRadius : input.chunkSize); ly++){
 				for(int lz = (z - throwRadius > 0? z - throwRadius : 0); lz < (z + throwRadius < input.chunkSize? z + throwRadius : input.chunkSize); lz++){
@@ -80,7 +83,6 @@ public class Light {
 						else{
 							block.xmin = new Color(r, g, b);
 						}
-
 						r = (int)(block.s.getRed()*c.getRed()/255*(ymaxAng + 90)/180*distChange);
 						g = (int)(block.s.getGreen()*c.getGreen()/255*(ymaxAng + 90)/180*distChange);
 						b = (int)(block.s.getBlue()*c.getBlue()/255*(ymaxAng + 90)/180*distChange);
@@ -110,7 +112,9 @@ public class Light {
 				}
 			}
 		}
-		
+		x += input.chunkSize*input.x;
+		y += input.chunkSize*input.y;
+		z += input.chunkSize*input.z;
 		return input;
 	}
 	private int check(int i){

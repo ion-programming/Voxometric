@@ -3,35 +3,46 @@ package au.com.ionprogramming.voxometric;
 import java.util.ArrayList;
 
 public class BlockList {
-	private ArrayList<String> names = new ArrayList<String>();
+	private ArrayList<Class> types = new ArrayList<Class>();
 	
-	public String getClassName(int id){
-		try{
-			return names.get(id);
-		}
-		catch(Exception e){
-			System.err.println("Unknown Block id!");
+	public Class getClassType(int id){
+		if(id != -1){
+			try{
+				return types.get(id);
+			}
+			catch(Exception e){
+				System.err.println("Unknown Block id!");
+			}
 		}
 		return null;
 	}
 	
-	public int getBlockID(String name){
-		return names.indexOf(name);
+	public int getBlockID(Block type){
+		if(type == null){
+			return -1;
+		}
+		return types.indexOf(type.getClass());
 	}
 	
-	public void addBlockType(String name){
-		names.add(name);
+	public void addBlockType(Block type){
+		types.add(type.getClass());
 	}
 	
-	public void addBlockType(String name, int index){
-		names.add(index, name);
+	public void addBlockType(Block type, int index){
+		types.add(index, type.getClass());
 	}
 	
-	public void removeBlockType(String name){
-		names.remove("name");
+	public void removeBlockType(Block type){
+		for(int n = 0; n < types.size(); n++){
+			if(types.get(n).equals(type.getClass())){
+				types.remove(type);
+				return;
+			}
+		}
+		System.err.println("Unknown block type: " + type.getClass().getName());
 	}
 	
 	public void removeBlockType(int index){
-		names.remove(index);
+		types.remove(index);
 	}
 }

@@ -29,7 +29,7 @@ public class Generator {
 				}
 			}
 		}
-		return new Chunk(chunkSize, blocks);
+		return new Chunk(chunkSize, blocks, 0, 0, 0);
 	}
 	
 }

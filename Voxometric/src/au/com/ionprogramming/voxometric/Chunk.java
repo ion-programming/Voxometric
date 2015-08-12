@@ -7,51 +7,55 @@ public class Chunk {
 	int chunkSize;
 	int prevAng = -1;	//TODO: implement proper updating
 	Block[][][] chunkData;
+	int x, y, z;
 	
-	public Chunk(int chunkSize, Block[][][] chunkData){
+	public Chunk(int chunkSize, Block[][][] chunkData, int chunkX, int chunkY, int chunkZ){
 		this.chunkSize = chunkSize;
 		this.chunkData = chunkData;
 		computeCoveredBlocks();
+		x = chunkX;
+		y = chunkY;
+		z = chunkZ;
 	}
 	
 	public void computeCoveredBlocks(){
-		for(int z = 0; z < chunkSize; z++){
-			for(int y = 0; y < chunkSize; y++){
-				for(int x = 0; x < chunkSize; x++){
-					if(chunkData[x][y][z] != null){
-						if(x > 0 && chunkData[x - 1][y][z] != null){
-							if((!chunkData[x - 1][y][z].isTransparent()) 
-								|| (chunkData[x - 1][y][z].isTransparent() && chunkData[x][y][z].isTransparent() 
-								&& chunkData[x - 1][y][z].getClass().equals(chunkData[x][y][z].getClass()))){
-								chunkData[x][y][z].coveredFaces += 2;
+		for(int k = 0; k < chunkSize; k++){
+			for(int j = 0; j < chunkSize; j++){
+				for(int i = 0; i < chunkSize; i++){
+					if(chunkData[i][j][k] != null){
+						if(i > 0 && chunkData[i - 1][j][k] != null){
+							if((!chunkData[i - 1][j][k].isTransparent()) 
+								|| (chunkData[i - 1][j][k].isTransparent() && chunkData[i][j][k].isTransparent() 
+								&& chunkData[i - 1][j][k].getClass().equals(chunkData[i][j][k].getClass()))){
+								chunkData[i][j][k].coveredFaces += 2;
 							}
 						}
-						if(x + 1 < chunkSize && chunkData[x + 1][y][z] != null){
-							if((!chunkData[x + 1][y][z].isTransparent()) 
-								|| (chunkData[x + 1][y][z].isTransparent() && chunkData[x][y][z].isTransparent() 
-								&& chunkData[x + 1][y][z].getClass().equals(chunkData[x][y][z].getClass()))){
-								chunkData[x][y][z].coveredFaces += 4;
+						if(i + 1 < chunkSize && chunkData[i + 1][j][k] != null){
+							if((!chunkData[i + 1][j][k].isTransparent()) 
+								|| (chunkData[i + 1][j][k].isTransparent() && chunkData[i][j][k].isTransparent() 
+								&& chunkData[i + 1][j][k].getClass().equals(chunkData[i][j][k].getClass()))){
+								chunkData[i][j][k].coveredFaces += 4;
 							}
 						}
-						if(y > 0 && chunkData[x][y - 1][z] != null){
-							if((!chunkData[x][y - 1][z].isTransparent()) 
-								|| (chunkData[x][y - 1][z].isTransparent() && chunkData[x][y][z].isTransparent() 
-								&& chunkData[x][y - 1][z].getClass().equals(chunkData[x][y][z].getClass()))){
-								chunkData[x][y][z].coveredFaces += 8;
+						if(j > 0 && chunkData[i][j - 1][k] != null){
+							if((!chunkData[i][j - 1][k].isTransparent()) 
+								|| (chunkData[i][j - 1][k].isTransparent() && chunkData[i][j][k].isTransparent() 
+								&& chunkData[i][j - 1][k].getClass().equals(chunkData[i][j][k].getClass()))){
+								chunkData[i][j][k].coveredFaces += 8;
 							}
 						}
-						if(y + 1 < chunkSize && chunkData[x][y + 1][z] != null){
-							if((!chunkData[x][y + 1][z].isTransparent()) 
-								|| (chunkData[x][y + 1][z].isTransparent() && chunkData[x][y][z].isTransparent() 
-								&& chunkData[x][y + 1][z].getClass().equals(chunkData[x][y][z].getClass()))){
-								chunkData[x][y][z].coveredFaces += 16;
+						if(j + 1 < chunkSize && chunkData[i][j + 1][k] != null){
+							if((!chunkData[i][j + 1][k].isTransparent()) 
+								|| (chunkData[i][j + 1][k].isTransparent() && chunkData[i][j][k].isTransparent() 
+								&& chunkData[i][j + 1][k].getClass().equals(chunkData[i][j][k].getClass()))){
+								chunkData[i][j][k].coveredFaces += 16;
 							}
 						}
-						if(z + 1 < chunkSize && chunkData[x][y][z + 1] != null){
-							if((!chunkData[x][y][z + 1].isTransparent()) 
-								|| (chunkData[x][y][z + 1].isTransparent() && chunkData[x][y][z].isTransparent() 
-								&& chunkData[x][y][z + 1].getClass().equals(chunkData[x][y][z].getClass()))){
-								chunkData[x][y][z].coveredFaces += 1;
+						if(k + 1 < chunkSize && chunkData[i][j][k + 1] != null){
+							if((!chunkData[i][j][k + 1].isTransparent()) 
+								|| (chunkData[i][j][k + 1].isTransparent() && chunkData[i][j][k].isTransparent() 
+								&& chunkData[i][j][k + 1].getClass().equals(chunkData[i][j][k].getClass()))){
+								chunkData[i][j][k].coveredFaces += 1;
 							}
 						}
 					}
@@ -115,62 +119,62 @@ public class Chunk {
 	private void setRenderTags(int angle){
 		switch(angle){
 			case 0:
-				for(int y = 0; y < chunkSize - 1; y++){
-					for(int x = 0; x < chunkSize - 1; x++){
-						cull0(x, y, chunkSize - 1, angle);
+				for(int j = 0; j < chunkSize - 1; j++){
+					for(int i = 0; i < chunkSize - 1; i++){
+						cull0(i, j, chunkSize - 1, angle);
 					}
 				}
-				for(int z = 0; z < chunkSize; z++){
-					for(int x = 0; x < chunkSize - 1; x++){
-						cull0(x, chunkSize - 1, z, angle);
+				for(int k = 0; k < chunkSize; k++){
+					for(int i = 0; i < chunkSize - 1; i++){
+						cull0(i, chunkSize - 1, k, angle);
 					}
-					for(int y = 0; y < chunkSize; y++){
-						cull0(chunkSize - 1, y, z, angle);
+					for(int j = 0; j < chunkSize; j++){
+						cull0(chunkSize - 1, j, k, angle);
 					}
 				}
 				break;
 			case 1:
-				for(int x = 0; x < chunkSize - 1; x++){
-					for(int y = chunkSize - 1; y > 0; y--){
-						cull1(x, y, chunkSize - 1, angle);
+				for(int i = 0; i < chunkSize - 1; i++){
+					for(int j = chunkSize - 1; j > 0; j--){
+						cull1(i, j, chunkSize - 1, angle);
 					}
 				}
-				for(int z = 0; z < chunkSize; z++){
-					for(int y = chunkSize - 1; y > 0; y--){
-						cull1(chunkSize - 1, y, z, angle);
+				for(int k = 0; k < chunkSize; k++){
+					for(int j = chunkSize - 1; j > 0; j--){
+						cull1(chunkSize - 1, j, k, angle);
 					}
-					for(int x = 0; x < chunkSize; x++){
-						cull1(x, 0, z, angle);
+					for(int i = 0; i < chunkSize; i++){
+						cull1(i, 0, k, angle);
 					}
 				}
 				break;
 			case 2:
-				for(int y = chunkSize - 1; y > 0; y--){
-					for(int x = chunkSize - 1; x > 0; x--){
-						cull2(x, y, chunkSize - 1, angle);
+				for(int j = chunkSize - 1; j > 0; j--){
+					for(int i = chunkSize - 1; i > 0; i--){
+						cull2(i, j, chunkSize - 1, angle);
 					}
 				}
-				for(int z = 0; z < chunkSize; z++){
-					for(int x = chunkSize - 1; x > 0; x--){
-						cull2(x, 0, z, angle);
+				for(int k = 0; k < chunkSize; k++){
+					for(int i = chunkSize - 1; i > 0; i--){
+						cull2(i, 0, k, angle);
 					}
-					for(int y = chunkSize - 1; y >= 0; y--){
-						cull2(0, y, z, angle);
+					for(int j = chunkSize - 1; j >= 0; j--){
+						cull2(0, j, k, angle);
 					}
 				}
 				break;
 			case 3:
-				for(int x = chunkSize - 1; x > 0; x--){
-					for(int y = 0; y < chunkSize - 1; y++){
-						cull3(x, y, chunkSize - 1, angle);
+				for(int i = chunkSize - 1; i > 0; i--){
+					for(int j = 0; j < chunkSize - 1; j++){
+						cull3(i, j, chunkSize - 1, angle);
 					}
 				}
-				for(int z = 0; z < chunkSize; z++){
-					for(int y = 0; y < chunkSize - 1; y++){
-						cull3(0, y, z, angle);
+				for(int k = 0; k < chunkSize; k++){
+					for(int j = 0; j < chunkSize - 1; j++){
+						cull3(0, j, k, angle);
 					}
-					for(int x = chunkSize - 1; x >= 0; x--){
-						cull3(x, chunkSize - 1, z, angle);
+					for(int i = chunkSize - 1; i >= 0; i--){
+						cull3(i, chunkSize - 1, k, angle);
 					}
 				}
 				break;
@@ -180,11 +184,11 @@ public class Chunk {
 	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
 		if(angle != prevAng){ //TODO: implement proper chunk updates
 			prevAng = angle;
-			for(int z = 0; z < chunkSize; z++){
-				for(int y = 0; y < chunkSize; y++){
-					for(int x = 0; x < chunkSize; x++){
-						if(chunkData[x][y][z] != null){
-							chunkData[x][y][z].setRenderTag(false);
+			for(int k = 0; k < chunkSize; k++){
+				for(int j = 0; j < chunkSize; j++){
+					for(int i = 0; i < chunkSize; i++){
+						if(chunkData[i][j][k] != null){
+							chunkData[i][j][k].setRenderTag(false);
 						}
 					}
 				}
@@ -192,40 +196,40 @@ public class Chunk {
 			setRenderTags(angle);
 		}
 			
-		for(int z = 0; z < chunkSize; z++){
+		for(int k = 0; k < chunkSize; k++){
 			switch(angle){
 				case 0:
-					for(int y = 0; y < chunkSize; y++){
-						for(int x = 0; x < chunkSize; x++){
-							if(chunkData[x][y][z] != null){
-								chunkData[x][y][z].render(g, width, height, angle, cx, cy, cz);
+					for(int j = 0; j < chunkSize; j++){
+						for(int i = 0; i < chunkSize; i++){
+							if(chunkData[i][j][k] != null){
+								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize, z*chunkSize);
 							}
 						}
 					}
 					break;
 				case 1:
-					for(int x = 0; x < chunkSize; x++){
-						for(int y = chunkSize - 1; y >= 0; y--){
-							if(chunkData[x][y][z] != null){
-								chunkData[x][y][z].render(g, width, height, angle, cx, cy, cz);
+					for(int i = 0; i < chunkSize; i++){
+						for(int j = chunkSize - 1; j >= 0; j--){
+							if(chunkData[i][j][k] != null){
+								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize, z*chunkSize);
 							}
 						}
 					}
 					break;
 				case 2:
-					for(int y = chunkSize - 1; y >= 0; y--){
-						for(int x = chunkSize - 1; x >= 0; x--){
-							if(chunkData[x][y][z] != null){
-								chunkData[x][y][z].render(g, width, height, angle, cx, cy, cz);
+					for(int j = chunkSize - 1; j >= 0; j--){
+						for(int i = chunkSize - 1; i >= 0; i--){
+							if(chunkData[i][j][k] != null){
+								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize, z*chunkSize);
 							}
 						}
 					}
 					break;
 				case 3:
-					for(int x = chunkSize - 1; x >= 0; x--){
-						for(int y = 0; y < chunkSize; y++){
-							if(chunkData[x][y][z] != null){
-								chunkData[x][y][z].render(g, width, height, angle, cx, cy, cz);
+					for(int i = chunkSize - 1; i >= 0; i--){
+						for(int j = 0; j < chunkSize; j++){
+							if(chunkData[i][j][k] != null){
+								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize, z*chunkSize);
 							}
 						}
 					}

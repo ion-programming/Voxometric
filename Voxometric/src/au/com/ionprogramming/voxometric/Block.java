@@ -18,7 +18,7 @@ public class Block {
 	static Polygon topPoly;
 	static Polygon leftPoly;
 	static Polygon rightPoly;
-	static Color outline = new Color(0, 0, 0, 0.25f);
+	static Color outline = new Color(0, 0, 0, 0.1f);
 	
 	private static int prevAng = -1;
 	private static double prevCx = Double.NaN;
@@ -79,16 +79,16 @@ public class Block {
 			}
 	}
 	
-	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
+	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz, int chunkX, int chunkY, int chunkZ){
 		if(!renderTag){
 			return;
 		}
 		if(prevAng != angle || prevCx != cx || prevCy != cy || prevCz != cz){
 			setOffsets(angle, cx, cy, cz);
 		}
-		int dx = x - (int)cx;
-		int dy = y - (int)cy;
-		int dz = z - (int)cz;
+		int dx = x + chunkX - (int)cx;
+		int dy = y + chunkY - (int)cy;
+		int dz = z + chunkZ - (int)cz;
 		int deltaX = 0;
 		int deltaY = 0;
 		switch(angle){
