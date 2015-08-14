@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 import org.newdawn.slick.Graphics;
 
@@ -17,6 +18,7 @@ public class ChunkManager {
 	private String worldFile = "C:/Users/Sam/Desktop/world.vox";
 	private int chunkSize;
 	private int loadSize;
+	private int reloadThreshold = 2;
 	private BlockList blockList;
 	
 	public ChunkManager(int loadSize){
@@ -100,11 +102,46 @@ public class ChunkManager {
 		}
 	}
 	
+	public void update(int midX, int midY, int midZ){
+		int xOS = midX + oX - loadSize/2;
+		int yOS = midY + oY - loadSize/2;
+		int zOS = midZ + oZ - loadSize/2;
+		if(Math.abs(xOS) >= reloadThreshold || Math.abs(yOS) >= reloadThreshold || Math.abs(zOS) >= reloadThreshold){
+			oX -= xOS;
+			oY -= yOS;
+			oZ -= zOS;
+			Chunk[][][] temp = new Chunk[loadSize][loadSize][loadSize];
+			int tX;
+			int tY;
+			int tZ;
+			for(int k = 0; k < loadSize; k++){
+				for(int j = 0; j < loadSize; j++){
+					for(int i = 0; i < loadSize; i++){
+						tX = i + xOS;
+						tY = j + yOS;
+						tZ = k + zOS;
+						if(tX < 0 || tY < 0 || tZ < 0 || tX >= loadSize || tY >= loadSize || tZ >= loadSize){
+							temp[i][j][k] = loadChunk(i - oX, j - oY, k - oZ);
+						}
+						else{
+							temp[i][j][k] = chunks[tX][tY][tZ];
+						}
+					}
+				}
+			}
+			for(int j = 0; j < loadSize; j++){
+				for(int i = 0; i < loadSize; i++){
+					chunks[i][j] = Arrays.copyOf(temp[i][j], loadSize);
+				}
+			}
+		}
+	}
+	
 	public void addChunk(int x, int y, int z){
 		int aX = x + oX;
 		int aY = y + oY;
 		int aZ = z + oZ;
-		if(aX < 0 || aX > chunks.length - 1 || aY < 0 || aY > chunks[0].length - 1 || aZ < 0 || aZ > chunks[0][0].length - 1){
+		if(aX < 0 || aX >= loadSize || aY < 0 || aY >= loadSize || aZ < 0 || aZ >= loadSize){
 			System.err.println("Cannot load chunk! Out of bounds!");
 			return;
 		}
