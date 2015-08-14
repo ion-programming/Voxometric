@@ -157,12 +157,20 @@ public class Block {
 		else {
 			Transform t = Transform.createTranslateTransform(deltaX, deltaY);
 			if(drawTop){
+//				g.setColor(top);
+//				topPoly.transform(t);
+//				g.setColor(top);
+//				topPoly.transform(t);
 				g.setColor(top);
 				g.fill(topPoly.transform(t));
 				g.setColor(outline);
 				g.draw(topPoly.transform(t));
 			}
 			if(drawLeft){
+//				g.setColor(top);
+//				topPoly.transform(t);
+//				g.setColor(top);
+//				topPoly.transform(t);
 				g.setColor(cl);
 				g.fill(leftPoly.transform(t));
 				g.setColor(outline);
@@ -173,6 +181,11 @@ public class Block {
 				g.fill(rightPoly.transform(t));
 				g.setColor(outline);
 				g.draw(rightPoly.transform(t));
+				
+//				g.setColor(top);
+//				topPoly.transform(t);
+//				g.setColor(top);
+//				topPoly.transform(t);
 			}
 		}
 		
