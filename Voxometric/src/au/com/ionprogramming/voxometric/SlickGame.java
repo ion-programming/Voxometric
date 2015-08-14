@@ -37,24 +37,8 @@ public class SlickGame extends BasicGame{
 	@Override
 	public void init(GameContainer gc) throws SlickException {
 		Images.load();
-		
-		cm = new ChunkManager(4);
-		BlockList bl = new BlockList();
-		bl.addBlockType(new Grass(0, 0, 0));
-		bl.addBlockType(new Water(0, 0, 0));
-		cm.setBlockList(bl);
-		cm.addChunk(0, 0, 0);
-		cm.addChunk(1, 0, 0);
-		cm.addChunk(0, 1, 0);
-		cm.addChunk(1, 1, 0);
-		
-		SunLight light = new SunLight(-20, 0, -4, Color.darkGray);
-		Light light1 = new Light(20, 20, 20, 30, Color.white);
-		Light light2 = new Light(-10, 0, 10, 20, Color.white);
-		cm.illuminate(light);
-		cm.illuminate(light1);
-		cm.illuminate(light2);
-		cm.saveChunk(cm.loadChunk(0, 0, 0));
+	
+		cm = Generator.generateWorld();
 		
 		Block.setBlockSize(40, 20);
 		

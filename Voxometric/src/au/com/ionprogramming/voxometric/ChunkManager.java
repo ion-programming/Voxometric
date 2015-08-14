@@ -14,7 +14,7 @@ import org.newdawn.slick.Graphics;
 public class ChunkManager {
 	private int oX, oY, oZ;
 	private Chunk[][][] chunks;
-	private String worldFile = "res/world.vox";
+	private String worldFile = "C:/vox/world.vox";
 	private int chunkSize;
 	private int loadSize;
 	private BlockList blockList;
