@@ -139,6 +139,101 @@ public class ChunkManager {
 		}
 	}
 	
+	public Chunk[] loadChunks(ArrayList<Integer> x, ArrayList<Integer> y){
+		try{
+			BufferedReader in = new BufferedReader(new FileReader(worldFile));
+			try{
+				String line;
+				String[] lineList;
+				if((line = in.readLine()) != null){
+					lineList = line.split(" ");
+					try{
+						chunkSize = Integer.parseInt(lineList[0]);
+						chunkHeight = Integer.parseInt(lineList[1]);
+					}
+					catch(Exception e){
+						System.err.println("Unable to load chunk size!");
+						in.close();
+						return null;
+					}
+				}
+				Chunk[] newChunks = new Chunk[x.size()];
+				int a = 0;
+				while((line = in.readLine()) != null){
+					lineList = line.split(" ");
+					for(int t = 0; t < x.size(); t++){
+						if(lineList[0].equals(x.get(t) + "") && lineList[1].equals(y.get(t) + "")){
+							Block[][][] chunkData = new Block[chunkSize][chunkSize][chunkHeight];
+							int i, j, k;
+							i = j = k = 0;
+							for(int m = 3; m < lineList.length; m++){
+								if(lineList[m].indexOf(':') != -1){
+									String[] word = lineList[m].split(":");
+									for(int n = 0; n < Integer.parseInt(word[1]); n++){
+										if(i == chunkSize){
+											i = 0;
+											j++;
+											if(j == chunkSize){
+												j = 0;
+												k++;
+												if(k == chunkHeight){
+													newChunks[a] = new Chunk(chunkSize, chunkHeight, chunkData, x.get(t), y.get(t));
+													a++;
+												}
+											}
+										}
+										try{
+											Class[] args = new Class[]{int.class, int.class, int.class};
+											chunkData[i][j][k] = (Block) blockList.getClassType(Integer.parseInt(word[0])).getDeclaredConstructor(args).newInstance(i, j, k);
+										}
+										catch(Exception e){
+											chunkData[i][j][k] = null;
+											if(blockList.getClassType(Integer.parseInt(word[0])) != null){
+												System.err.println("Unable to find class with id: " + word[0]);
+											}
+										}
+										i++;
+									}
+								}
+								else{
+									if(i == chunkSize){
+										i = 0;
+										j++;
+										if(j == chunkSize){
+											j = 0;
+											k++;
+											if(k == chunkHeight){
+												newChunks[a] = new Chunk(chunkSize, chunkHeight, chunkData, x.get(t), y.get(t));
+											}
+										}
+									}
+									try{
+										Class[] args = new Class[]{int.class, int.class, int.class};
+										chunkData[i][j][k] = (Block) blockList.getClassType(Integer.parseInt(lineList[m])).getDeclaredConstructor(args).newInstance(i, j, k);
+									}
+									catch(Exception e){
+										chunkData[i][j][k] = null;
+										System.err.println("Unable to find class with id: " + lineList[m]);
+									}
+									i++;
+								}
+							}
+							newChunks[a] = new Chunk(chunkSize, chunkHeight, chunkData, x.get(t), y.get(t));
+						}
+					}
+				}
+				return newChunks;
+			}
+			finally{
+				in.close();
+			}
+		}
+		catch(IOException e){
+			System.err.println("Unable to find save file: " + worldFile);
+		}
+		return null;
+	}
+	
 	public Chunk loadChunk(int x, int y){
 		try{
 			BufferedReader in = new BufferedReader(new FileReader(worldFile));
@@ -263,6 +358,77 @@ public class ChunkManager {
 		}
 		catch(IOException e){
 			System.err.println("Unable to save world file");
+		}
+	}
+	
+	public void saveChunks(ArrayList<Chunk> chunkList){
+		try{
+			BufferedReader in = new BufferedReader(new FileReader(worldFile));
+			BufferedWriter out = new BufferedWriter(new FileWriter(worldFile + "_"));
+			try{
+				String line;
+				while((line = in.readLine()) != null){
+					String[] start = line.split(" ", 3);
+					for(int t = 0; t < chunkList.size(); t++){
+						if(start.length >= 2 && start[0].equals(chunkList.get(t).x + "") && start[1].equals(chunkList.get(t).y + "")){
+							out.write(chunkList.get(t).x + " " + chunkList.get(t).y + " ");
+							int id = blockList.getBlockID(chunkList.get(t).chunkData[0][0][0]);
+							int lineCount = 0;
+							for(int k = 0; k < chunkHeight; k++){
+								for(int j = 0; j < chunkSize; j++){
+									for(int i = 0; i < chunkSize; i++){
+										int nextID = blockList.getBlockID(chunkList.get(t).chunkData[i][j][k]);
+										if(id != nextID){
+											out.write(id + ":" + lineCount + " ");
+											lineCount = 0;
+											id = nextID;
+										}
+										lineCount++;
+									}
+								}
+							}
+							out.write(id + ":" + lineCount + " ");
+							out.newLine();
+							chunkList.remove(t);
+							t--;
+						}
+						else{
+							out.write(line);
+							out.newLine();
+						}
+					}
+				}
+				for(int t = 0; t < chunkList.size(); t++){
+					out.write(chunkList.get(t).x + " " + chunkList.get(t).y + " ");
+					int id = blockList.getBlockID(chunkList.get(t).chunkData[0][0][0]);
+					int lineCount = 0;
+					for(int k = 0; k < chunkHeight; k++){
+						for(int j = 0; j < chunkSize; j++){
+							for(int i = 0; i < chunkSize; i++){
+								int nextID = blockList.getBlockID(chunkList.get(t).chunkData[i][j][k]);
+								if(id != nextID){
+									out.write(id + ":" + lineCount + " ");
+									lineCount = 0;
+									id = nextID;
+								}
+								lineCount++;
+							}
+						}
+					}
+					out.write(id + ":" + lineCount + " ");
+					out.newLine();
+				}
+			}
+			finally{
+				in.close();
+				out.close();
+				Files.delete(Paths.get(worldFile));
+				File f = new File(worldFile + "_");
+				f.renameTo(new File(worldFile));
+			}
+		}
+		catch(IOException e){
+			System.err.println("Unable to find save file: " + worldFile);
 		}
 	}
 	
