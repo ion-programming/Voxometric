@@ -79,7 +79,7 @@ public class Block {
 			}
 	}
 	
-	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz, int chunkX, int chunkY, int chunkZ){
+	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz, int chunkX, int chunkY){
 		if(!renderTag){
 			return;
 		}
@@ -88,7 +88,7 @@ public class Block {
 		}
 		int dx = x + chunkX - (int)cx;
 		int dy = y + chunkY - (int)cy;
-		int dz = z + chunkZ - (int)cz;
+		int dz = z - (int)cz;
 		int deltaX = 0;
 		int deltaY = 0;
 		switch(angle){
@@ -157,20 +157,12 @@ public class Block {
 		else {
 			Transform t = Transform.createTranslateTransform(deltaX, deltaY);
 			if(drawTop){
-//				g.setColor(top);
-//				topPoly.transform(t);
-//				g.setColor(top);
-//				topPoly.transform(t);
 				g.setColor(top);
 				g.fill(topPoly.transform(t));
 				g.setColor(outline);
 				g.draw(topPoly.transform(t));
 			}
 			if(drawLeft){
-//				g.setColor(top);
-//				topPoly.transform(t);
-//				g.setColor(top);
-//				topPoly.transform(t);
 				g.setColor(cl);
 				g.fill(leftPoly.transform(t));
 				g.setColor(outline);
@@ -181,11 +173,6 @@ public class Block {
 				g.fill(rightPoly.transform(t));
 				g.setColor(outline);
 				g.draw(rightPoly.transform(t));
-				
-//				g.setColor(top);
-//				topPoly.transform(t);
-//				g.setColor(top);
-//				topPoly.transform(t);
 			}
 		}
 		

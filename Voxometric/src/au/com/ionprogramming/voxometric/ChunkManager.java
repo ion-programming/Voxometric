@@ -14,10 +14,11 @@ import java.util.Arrays;
 import org.newdawn.slick.Graphics;
 
 public class ChunkManager {
-	private int oX, oY, oZ;
-	private Chunk[][][] chunks;
+	private int oX, oY;
+	private Chunk[][] chunks;
 	private String worldFile;
 	private int chunkSize;
+	private int chunkHeight;
 	private int loadSize;
 	private int reloadThreshold;
 	private BlockList blockList;
@@ -28,25 +29,22 @@ public class ChunkManager {
 		this.loadSize = loadSize;
 		this.reloadThreshold = reloadThreshold;
 		this.worldFile = worldFile;
-		chunks = new Chunk[loadSize][loadSize][loadSize];
-		oX = oY = oZ = 0;
+		chunks = new Chunk[loadSize][loadSize];
+		oX = oY = 0;
 		blockList = new BlockList();
 	}
 	
-	public void init(int oX, int oY, int oZ){
+	public void init(int oX, int oY){
 		this.oX = oX;
 		this.oY = oY;
-		this.oZ = oZ;
-		for(int k = 0; k < loadSize; k++){
-			for(int j = 0; j < loadSize; j++){
-				for(int i = 0; i < loadSize; i++){
-					chunks[i][j][k] = loadChunk(i - oX, j - oY, k - oZ);
-					for(int n = 0; n < sunLights.size(); n++){
-						sunLights.get(n).illuminate(chunks[i][j][k]);
-					}
-					for(int n = 0; n < lights.size(); n++){
-						lights.get(n).illuminate(chunks[i][j][k]);
-					}
+		for(int j = 0; j < loadSize; j++){
+			for(int i = 0; i < loadSize; i++){
+				chunks[i][j] = loadChunk(i - oX, j - oY);
+				for(int n = 0; n < sunLights.size(); n++){
+					sunLights.get(n).illuminate(chunks[i][j]);
+				}
+				for(int n = 0; n < lights.size(); n++){
+					lights.get(n).illuminate(chunks[i][j]);
 				}
 			}
 		}
@@ -69,13 +67,12 @@ public class ChunkManager {
 	}
 	
 	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
-		for(int z = 0; z < loadSize; z++){
 			switch(angle){
 				case 0:
 					for(int y = 0; y < loadSize; y++){
 						for(int x = 0; x < loadSize; x++){
-							if(chunks[x][y][z] != null){
-								chunks[x][y][z].render(g, width, height, angle, cx, cy, cz);
+							if(chunks[x][y] != null){
+								chunks[x][y].render(g, width, height, angle, cx, cy, cz);
 							}
 						}
 					}
@@ -83,8 +80,8 @@ public class ChunkManager {
 				case 1:
 					for(int x = 0; x < loadSize; x++){
 						for(int y = loadSize - 1; y >= 0; y--){
-							if(chunks[x][y][z] != null){
-								chunks[x][y][z].render(g, width, height, angle, cx, cy, cz);
+							if(chunks[x][y] != null){
+								chunks[x][y].render(g, width, height, angle, cx, cy, cz);
 							}
 						}
 					}
@@ -92,8 +89,8 @@ public class ChunkManager {
 				case 2:
 					for(int y = loadSize - 1; y >= 0; y--){
 						for(int x = loadSize - 1; x >= 0; x--){
-							if(chunks[x][y][z] != null){
-								chunks[x][y][z].render(g, width, height, angle, cx, cy, cz);
+							if(chunks[x][y] != null){
+								chunks[x][y].render(g, width, height, angle, cx, cy, cz);
 							}
 						}
 					}
@@ -101,57 +98,48 @@ public class ChunkManager {
 				case 3:
 					for(int x = loadSize - 1; x >= 0; x--){
 						for(int y = 0; y < loadSize; y++){
-							if(chunks[x][y][z] != null){
-								chunks[x][y][z].render(g, width, height, angle, cx, cy, cz);
+							if(chunks[x][y] != null){
+								chunks[x][y].render(g, width, height, angle, cx, cy, cz);
 							}
 						}
 					}
 			}
-		}
 	}
 	
 	public void update(int playerX, int playerY, int playerZ){
 		int xOS = playerX/chunkSize + oX - loadSize/2;
 		int yOS = playerY/chunkSize + oY - loadSize/2;
-		int zOS = playerZ/chunkSize + oZ - loadSize/2;
-		if(Math.abs(xOS) >= reloadThreshold || Math.abs(yOS) >= reloadThreshold || Math.abs(zOS) >= reloadThreshold){
+		if(Math.abs(xOS) >= reloadThreshold || Math.abs(yOS) >= reloadThreshold){
 			oX -= xOS;
 			oY -= yOS;
-			oZ -= zOS;
-			Chunk[][][] temp = new Chunk[loadSize][loadSize][loadSize];
+			Chunk[][] temp = new Chunk[loadSize][loadSize];
 			int tX;
 			int tY;
-			int tZ;
-			for(int k = 0; k < loadSize; k++){
-				for(int j = 0; j < loadSize; j++){
-					for(int i = 0; i < loadSize; i++){
-						tX = i + xOS;
-						tY = j + yOS;
-						tZ = k + zOS;
-						if(tX < 0 || tY < 0 || tZ < 0 || tX >= loadSize || tY >= loadSize || tZ >= loadSize){
-							temp[i][j][k] = loadChunk(i - oX, j - oY, k - oZ);
-							for(int n = 0; n < sunLights.size(); n++){
-								sunLights.get(n).illuminate(temp[i][j][k]);
-							}
-							for(int n = 0; n < lights.size(); n++){
-								lights.get(n).illuminate(temp[i][j][k]);
-							}
+			for(int j = 0; j < loadSize; j++){
+				for(int i = 0; i < loadSize; i++){
+					tX = i + xOS;
+					tY = j + yOS;
+					if(tX < 0 || tY < 0 || tX >= loadSize || tY >= loadSize){
+						temp[i][j] = loadChunk(i - oX, j - oY);
+						for(int n = 0; n < sunLights.size(); n++){
+							sunLights.get(n).illuminate(temp[i][j]);
 						}
-						else{
-							temp[i][j][k] = chunks[tX][tY][tZ];
+						for(int n = 0; n < lights.size(); n++){
+							lights.get(n).illuminate(temp[i][j]);
 						}
+					}
+					else{
+						temp[i][j] = chunks[tX][tY];
 					}
 				}
 			}
-			for(int j = 0; j < loadSize; j++){
-				for(int i = 0; i < loadSize; i++){
-					chunks[i][j] = Arrays.copyOf(temp[i][j], loadSize);
-				}
+			for(int i = 0; i < loadSize; i++){
+				chunks[i] = Arrays.copyOf(temp[i], loadSize);
 			}
 		}
 	}
 	
-	public Chunk loadChunk(int x, int y, int z){
+	public Chunk loadChunk(int x, int y){
 		try{
 			BufferedReader in = new BufferedReader(new FileReader(worldFile));
 			try{
@@ -161,8 +149,9 @@ public class ChunkManager {
 					lineList = line.split(" ");
 					try{
 						chunkSize = Integer.parseInt(lineList[0]);
+						chunkHeight = Integer.parseInt(lineList[1]);
 					}
-					catch(NumberFormatException e){
+					catch(Exception e){
 						System.err.println("Unable to load chunk size!");
 						in.close();
 						return null;
@@ -170,8 +159,8 @@ public class ChunkManager {
 				}
 				while((line = in.readLine()) != null){
 					lineList = line.split(" ");
-					if(lineList[0].equals(x + "") && lineList[1].equals(y + "") && lineList[2].equals(z + "")){
-						Block[][][] chunkData = new Block[chunkSize][chunkSize][chunkSize];
+					if(lineList[0].equals(x + "") && lineList[1].equals(y + "")){
+						Block[][][] chunkData = new Block[chunkSize][chunkSize][chunkHeight];
 						int i, j, k;
 						i = j = k = 0;
 						for(int m = 3; m < lineList.length; m++){
@@ -184,8 +173,8 @@ public class ChunkManager {
 										if(j == chunkSize){
 											j = 0;
 											k++;
-											if(k == chunkSize){
-												return new Chunk(chunkSize, chunkData, x, y, z);
+											if(k == chunkHeight){
+												return new Chunk(chunkSize, chunkHeight, chunkData, x, y);
 											}
 										}
 									}
@@ -209,8 +198,8 @@ public class ChunkManager {
 									if(j == chunkSize){
 										j = 0;
 										k++;
-										if(k == chunkSize){
-											return new Chunk(chunkSize, chunkData, x, y, z);
+										if(k == chunkHeight){
+											return new Chunk(chunkSize, chunkHeight, chunkData, x, y);
 										}
 									}
 								}
@@ -225,7 +214,7 @@ public class ChunkManager {
 								i++;
 							}
 						}
-						return new Chunk(chunkSize, chunkData, x, y, z);
+						return new Chunk(chunkSize, chunkHeight, chunkData, x, y);
 					}
 				}
 			}
@@ -244,13 +233,14 @@ public class ChunkManager {
 			BufferedWriter out = new BufferedWriter(new FileWriter(worldFile));
 			try{
 				chunkSize = world[0].chunkSize;
-				out.write(chunkSize + "");
+				chunkHeight = world[0].chunkHeight;
+				out.write(chunkSize + chunkHeight + "");
 				out.newLine();
 				for(int n = 0; n < world.length; n++){
-					out.write(world[n].x + " " + world[n].y + " " + world[n].z + " ");
+					out.write(world[n].x + " " + world[n].y + " ");
 					int id = blockList.getBlockID(world[n].chunkData[0][0][0]);
 					int lineCount = 0;
-					for(int k = 0; k < chunkSize; k++){
+					for(int k = 0; k < chunkHeight; k++){
 						for(int j = 0; j < chunkSize; j++){
 							for(int i = 0; i < chunkSize; i++){
 								int nextID = blockList.getBlockID(world[n].chunkData[i][j][k]);
@@ -272,7 +262,7 @@ public class ChunkManager {
 			}
 		}
 		catch(IOException e){
-			
+			System.err.println("Unable to save world file");
 		}
 	}
 	
@@ -287,13 +277,13 @@ public class ChunkManager {
 				boolean create = true;
 				String line;
 				while((line = in.readLine()) != null){
-					String[] start = line.split(" ", 4);
-					if(start.length >= 3 && start[0].equals(chunk.x + "") && start[1].equals(chunk.y + "") && start[2].equals(chunk.z + "")){
+					String[] start = line.split(" ", 3);
+					if(start.length >= 2 && start[0].equals(chunk.x + "") && start[1].equals(chunk.y + "")){
 						create = false;
-						out.write(chunk.x + " " + chunk.y + " " + chunk.z + " ");
+						out.write(chunk.x + " " + chunk.y + " ");
 						int id = blockList.getBlockID(chunk.chunkData[0][0][0]);
 						int lineCount = 0;
-						for(int k = 0; k < chunkSize; k++){
+						for(int k = 0; k < chunkHeight; k++){
 							for(int j = 0; j < chunkSize; j++){
 								for(int i = 0; i < chunkSize; i++){
 									int nextID = blockList.getBlockID(chunk.chunkData[i][j][k]);
@@ -315,10 +305,10 @@ public class ChunkManager {
 					}
 				}
 				if(create){
-					out.write(chunk.x + " " + chunk.y + " " + chunk.z + " ");
+					out.write(chunk.x + " " + chunk.y + " ");
 					int id = blockList.getBlockID(chunk.chunkData[0][0][0]);
 					int lineCount = 0;
-					for(int k = 0; k < chunkSize; k++){
+					for(int k = 0; k < chunkHeight; k++){
 						for(int j = 0; j < chunkSize; j++){
 							for(int i = 0; i < chunkSize; i++){
 								int nextID = blockList.getBlockID(chunk.chunkData[i][j][k]);

@@ -5,21 +5,21 @@ import org.newdawn.slick.Graphics;
 public class Chunk {
 
 	int chunkSize;
+	int chunkHeight;
 	int prevAng = -1;	//TODO: implement proper updating
 	Block[][][] chunkData;
-	int x, y, z;
+	int x, y;
 	
-	public Chunk(int chunkSize, Block[][][] chunkData, int chunkX, int chunkY, int chunkZ){
+	public Chunk(int chunkSize, int chunkHeight, Block[][][] chunkData, int chunkX, int chunkY){
 		this.chunkSize = chunkSize;
 		this.chunkData = chunkData;
 		computeCoveredBlocks();
 		x = chunkX;
 		y = chunkY;
-		z = chunkZ;
 	}
 	
 	public void computeCoveredBlocks(){
-		for(int k = 0; k < chunkSize; k++){
+		for(int k = 0; k < chunkHeight; k++){
 			for(int j = 0; j < chunkSize; j++){
 				for(int i = 0; i < chunkSize; i++){
 					if(chunkData[i][j][k] != null){
@@ -51,7 +51,7 @@ public class Chunk {
 								chunkData[i][j][k].coveredFaces += 16;
 							}
 						}
-						if(k + 1 < chunkSize && chunkData[i][j][k + 1] != null){
+						if(k + 1 < chunkHeight && chunkData[i][j][k + 1] != null){
 							if((!chunkData[i][j][k + 1].isTransparent()) 
 								|| (chunkData[i][j][k + 1].isTransparent() && chunkData[i][j][k].isTransparent() 
 								&& chunkData[i][j][k + 1].getClass().equals(chunkData[i][j][k].getClass()))){
@@ -121,10 +121,10 @@ public class Chunk {
 			case 0:
 				for(int j = 0; j < chunkSize - 1; j++){
 					for(int i = 0; i < chunkSize - 1; i++){
-						cull0(i, j, chunkSize - 1, angle);
+						cull0(i, j, chunkHeight - 1, angle);
 					}
 				}
-				for(int k = 0; k < chunkSize; k++){
+				for(int k = 0; k < chunkHeight; k++){
 					for(int i = 0; i < chunkSize - 1; i++){
 						cull0(i, chunkSize - 1, k, angle);
 					}
@@ -136,10 +136,10 @@ public class Chunk {
 			case 1:
 				for(int i = 0; i < chunkSize - 1; i++){
 					for(int j = chunkSize - 1; j > 0; j--){
-						cull1(i, j, chunkSize - 1, angle);
+						cull1(i, j, chunkHeight - 1, angle);
 					}
 				}
-				for(int k = 0; k < chunkSize; k++){
+				for(int k = 0; k < chunkHeight; k++){
 					for(int j = chunkSize - 1; j > 0; j--){
 						cull1(chunkSize - 1, j, k, angle);
 					}
@@ -151,10 +151,10 @@ public class Chunk {
 			case 2:
 				for(int j = chunkSize - 1; j > 0; j--){
 					for(int i = chunkSize - 1; i > 0; i--){
-						cull2(i, j, chunkSize - 1, angle);
+						cull2(i, j, chunkHeight - 1, angle);
 					}
 				}
-				for(int k = 0; k < chunkSize; k++){
+				for(int k = 0; k < chunkHeight; k++){
 					for(int i = chunkSize - 1; i > 0; i--){
 						cull2(i, 0, k, angle);
 					}
@@ -166,10 +166,10 @@ public class Chunk {
 			case 3:
 				for(int i = chunkSize - 1; i > 0; i--){
 					for(int j = 0; j < chunkSize - 1; j++){
-						cull3(i, j, chunkSize - 1, angle);
+						cull3(i, j, chunkHeight - 1, angle);
 					}
 				}
-				for(int k = 0; k < chunkSize; k++){
+				for(int k = 0; k < chunkHeight; k++){
 					for(int j = 0; j < chunkSize - 1; j++){
 						cull3(0, j, k, angle);
 					}
@@ -184,7 +184,7 @@ public class Chunk {
 	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
 		if(angle != prevAng){ //TODO: implement proper chunk updates
 			prevAng = angle;
-			for(int k = 0; k < chunkSize; k++){
+			for(int k = 0; k < chunkHeight; k++){
 				for(int j = 0; j < chunkSize; j++){
 					for(int i = 0; i < chunkSize; i++){
 						if(chunkData[i][j][k] != null){
@@ -196,13 +196,13 @@ public class Chunk {
 			setRenderTags(angle);
 		}
 			
-		for(int k = 0; k < chunkSize; k++){
+		for(int k = 0; k < chunkHeight; k++){
 			switch(angle){
 				case 0:
 					for(int j = 0; j < chunkSize; j++){
 						for(int i = 0; i < chunkSize; i++){
 							if(chunkData[i][j][k] != null){
-								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize, z*chunkSize);
+								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize);
 							}
 						}
 					}
@@ -211,7 +211,7 @@ public class Chunk {
 					for(int i = 0; i < chunkSize; i++){
 						for(int j = chunkSize - 1; j >= 0; j--){
 							if(chunkData[i][j][k] != null){
-								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize, z*chunkSize);
+								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize);
 							}
 						}
 					}
@@ -220,7 +220,7 @@ public class Chunk {
 					for(int j = chunkSize - 1; j >= 0; j--){
 						for(int i = chunkSize - 1; i >= 0; i--){
 							if(chunkData[i][j][k] != null){
-								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize, z*chunkSize);
+								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize);
 							}
 						}
 					}
@@ -229,7 +229,7 @@ public class Chunk {
 					for(int i = chunkSize - 1; i >= 0; i--){
 						for(int j = 0; j < chunkSize; j++){
 							if(chunkData[i][j][k] != null){
-								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize, z*chunkSize);
+								chunkData[i][j][k].render(g, width, height, angle, cx, cy, cz, x*chunkSize, y*chunkSize);
 							}
 						}
 					}
