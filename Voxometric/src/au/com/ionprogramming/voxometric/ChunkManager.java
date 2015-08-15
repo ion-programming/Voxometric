@@ -13,6 +13,8 @@ import java.util.Arrays;
 
 import org.newdawn.slick.Graphics;
 
+import au.com.ionprogramming.voxometric.world.ChunkGenerator;
+
 public class ChunkManager {
 	private int oX, oY;
 	private Chunk[][] chunks;
@@ -35,18 +37,31 @@ public class ChunkManager {
 	}
 	
 	public void init(int oX, int oY){
+		if(!Files.exists(Paths.get(worldFile))){
+			createBlankFile(ChunkGenerator.CHUNK_SIZE, ChunkGenerator.CHUNK_HEIGHT);
+		}
 		this.oX = oX;
 		this.oY = oY;
+		ArrayList<Integer> x = new ArrayList<Integer>();
+		ArrayList<Integer> y = new ArrayList<Integer>();
 		for(int j = 0; j < loadSize; j++){
 			for(int i = 0; i < loadSize; i++){
-				chunks[i][j] = loadChunk(i - oX, j - oY);
-				for(int n = 0; n < sunLights.size(); n++){
-					sunLights.get(n).illuminate(chunks[i][j]);
-				}
-				for(int n = 0; n < lights.size(); n++){
-					lights.get(n).illuminate(chunks[i][j]);
-				}
+				x.add(i - oX);
+				y.add(j - oY);
 			}
+		}
+		Chunk[] newChunks = loadChunks(x, y);
+		for(int n = 0; n < newChunks.length; n++){
+			if(newChunks[n] == null){
+				newChunks[n] = ChunkGenerator.getChunk(x.get(n), y.get(n));
+			}
+			for(int m = 0; m < sunLights.size(); m++){
+				sunLights.get(m).illuminate(newChunks[n]);
+			}
+			for(int m = 0; m < lights.size(); m++){
+				lights.get(m).illuminate(newChunks[n]);
+			}
+			chunks[newChunks[n].x + oX][newChunks[n].y + oY] = newChunks[n];
 		}
 	}
 	
@@ -113,25 +128,34 @@ public class ChunkManager {
 			oX -= xOS;
 			oY -= yOS;
 			Chunk[][] temp = new Chunk[loadSize][loadSize];
-			int tX;
-			int tY;
+			ArrayList<Integer> x = new ArrayList<Integer>();
+			ArrayList<Integer> y = new ArrayList<Integer>();
+			ArrayList<Chunk> oldChunks = new ArrayList<Chunk>();
 			for(int j = 0; j < loadSize; j++){
 				for(int i = 0; i < loadSize; i++){
-					tX = i + xOS;
-					tY = j + yOS;
-					if(tX < 0 || tY < 0 || tX >= loadSize || tY >= loadSize){
-						temp[i][j] = loadChunk(i - oX, j - oY);
-						for(int n = 0; n < sunLights.size(); n++){
-							sunLights.get(n).illuminate(temp[i][j]);
-						}
-						for(int n = 0; n < lights.size(); n++){
-							lights.get(n).illuminate(temp[i][j]);
-						}
+					if(i + xOS < 0 || j + yOS < 0 || i + xOS >= loadSize || j + yOS >= loadSize){
+						x.add(i - oX);
+						y.add(j - oY);
+						oldChunks.add(chunks[loadSize - i - 1][loadSize - j - 1]);
 					}
 					else{
-						temp[i][j] = chunks[tX][tY];
+						temp[i][j] = chunks[i + xOS][j + yOS];
 					}
 				}
+			}
+			saveChunks(oldChunks);
+			Chunk[] newChunks = loadChunks(x, y);
+			for(int n = 0; n < newChunks.length; n++){
+				if(newChunks[n] == null){
+					newChunks[n] = ChunkGenerator.getChunk(x.get(n), y.get(n));
+				}
+				for(int m = 0; m < sunLights.size(); m++){
+					sunLights.get(m).illuminate(newChunks[n]);
+				}
+				for(int m = 0; m < lights.size(); m++){
+					lights.get(m).illuminate(newChunks[n]);
+				}
+				temp[newChunks[n].x + oX][newChunks[n].y + oY] = newChunks[n];
 			}
 			for(int i = 0; i < loadSize; i++){
 				chunks[i] = Arrays.copyOf(temp[i], loadSize);
@@ -139,7 +163,25 @@ public class ChunkManager {
 		}
 	}
 	
-	public Chunk[] loadChunks(ArrayList<Integer> x, ArrayList<Integer> y){
+	private void createBlankFile(int cSize, int cHeight){
+		try{
+			BufferedWriter out = new BufferedWriter(new FileWriter(worldFile));
+			try{
+				chunkSize = cSize;
+				chunkHeight = cHeight;
+				out.write(chunkSize + " " + chunkHeight);
+				out.newLine();
+			}
+			finally{
+				out.close();
+			}
+		}
+		catch(IOException e){
+			System.err.println("Unable to save world file");
+		}
+	}
+	
+	private Chunk[] loadChunks(ArrayList<Integer> x, ArrayList<Integer> y){
 		try{
 			BufferedReader in = new BufferedReader(new FileReader(worldFile));
 			try{
@@ -234,7 +276,7 @@ public class ChunkManager {
 		return null;
 	}
 	
-	public Chunk loadChunk(int x, int y){
+	private Chunk loadChunk(int x, int y){
 		try{
 			BufferedReader in = new BufferedReader(new FileReader(worldFile));
 			try{
@@ -323,13 +365,13 @@ public class ChunkManager {
 		return null;
 	}
 	
-	public void saveNewWorld(Chunk[] world){
+	private void saveNewWorld(Chunk[] world){
 		try{
 			BufferedWriter out = new BufferedWriter(new FileWriter(worldFile));
 			try{
 				chunkSize = world[0].chunkSize;
 				chunkHeight = world[0].chunkHeight;
-				out.write(chunkSize + chunkHeight + "");
+				out.write(chunkSize + " " + chunkHeight);
 				out.newLine();
 				for(int n = 0; n < world.length; n++){
 					out.write(world[n].x + " " + world[n].y + " ");
@@ -361,16 +403,19 @@ public class ChunkManager {
 		}
 	}
 	
-	public void saveChunks(ArrayList<Chunk> chunkList){
+	private void saveChunks(ArrayList<Chunk> chunkList){
 		try{
 			BufferedReader in = new BufferedReader(new FileReader(worldFile));
 			BufferedWriter out = new BufferedWriter(new FileWriter(worldFile + "_"));
 			try{
 				String line;
+				boolean copyLine;
 				while((line = in.readLine()) != null){
+					copyLine = true;
 					String[] start = line.split(" ", 3);
 					for(int t = 0; t < chunkList.size(); t++){
-						if(start.length >= 2 && start[0].equals(chunkList.get(t).x + "") && start[1].equals(chunkList.get(t).y + "")){
+						if(chunkList.get(t) != null && start.length >= 3 && start[0].equals(chunkList.get(t).x + "") && start[1].equals(chunkList.get(t).y + "")){
+							copyLine = false;
 							out.write(chunkList.get(t).x + " " + chunkList.get(t).y + " ");
 							int id = blockList.getBlockID(chunkList.get(t).chunkData[0][0][0]);
 							int lineCount = 0;
@@ -392,31 +437,33 @@ public class ChunkManager {
 							chunkList.remove(t);
 							t--;
 						}
-						else{
-							out.write(line);
-							out.newLine();
-						}
+					}
+					if(copyLine){
+						out.write(line);
+						out.newLine();
 					}
 				}
 				for(int t = 0; t < chunkList.size(); t++){
-					out.write(chunkList.get(t).x + " " + chunkList.get(t).y + " ");
-					int id = blockList.getBlockID(chunkList.get(t).chunkData[0][0][0]);
-					int lineCount = 0;
-					for(int k = 0; k < chunkHeight; k++){
-						for(int j = 0; j < chunkSize; j++){
-							for(int i = 0; i < chunkSize; i++){
-								int nextID = blockList.getBlockID(chunkList.get(t).chunkData[i][j][k]);
-								if(id != nextID){
-									out.write(id + ":" + lineCount + " ");
-									lineCount = 0;
-									id = nextID;
+					if(chunkList.get(t) != null){
+						out.write(chunkList.get(t).x + " " + chunkList.get(t).y + " ");
+						int id = blockList.getBlockID(chunkList.get(t).chunkData[0][0][0]);
+						int lineCount = 0;
+						for(int k = 0; k < chunkHeight; k++){
+							for(int j = 0; j < chunkSize; j++){
+								for(int i = 0; i < chunkSize; i++){
+									int nextID = blockList.getBlockID(chunkList.get(t).chunkData[i][j][k]);
+									if(id != nextID){
+										out.write(id + ":" + lineCount + " ");
+										lineCount = 0;
+										id = nextID;
+									}
+									lineCount++;
 								}
-								lineCount++;
 							}
 						}
+						out.write(id + ":" + lineCount + " ");
+						out.newLine();
 					}
-					out.write(id + ":" + lineCount + " ");
-					out.newLine();
 				}
 			}
 			finally{
@@ -432,7 +479,7 @@ public class ChunkManager {
 		}
 	}
 	
-	public void saveChunk(Chunk chunk){
+	private void saveChunk(Chunk chunk){
 		if(chunk == null){
 			return;
 		}

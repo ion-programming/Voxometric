@@ -12,6 +12,7 @@ public class Chunk {
 	
 	public Chunk(int chunkSize, int chunkHeight, Block[][][] chunkData, int chunkX, int chunkY){
 		this.chunkSize = chunkSize;
+		this.chunkHeight = chunkHeight;
 		this.chunkData = chunkData;
 		computeCoveredBlocks();
 		x = chunkX;

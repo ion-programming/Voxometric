@@ -11,15 +11,14 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
+import au.com.ionprogramming.voxometric.blocks.Grass;
+import au.com.ionprogramming.voxometric.blocks.Water;
 import au.com.ionprogramming.voxometric.entities.EntityManager;
-import au.com.ionprogramming.voxometric.world.WorldGenerator;
 
 public class SlickGame extends BasicGame{
 	
 	private static int width = 1280;
 	private static int height = 720;
-	
-//	private Chunk chunk;	//TODO: temporary
 	
 	public static double cx = 0;
 	public static double cy = 0;
@@ -36,8 +35,12 @@ public class SlickGame extends BasicGame{
 	@Override
 	public void init(GameContainer gc) throws SlickException {
 		Images.load();
-	
-		cm = WorldGenerator.generateWorld();
+		
+		cm = new ChunkManager(12, 3, "C:/vox/world.vox");
+		cm.getBlockList().addBlockType(new Grass(0, 0, 0));
+		cm.getBlockList().addBlockType(new Water(0, 0, 0));
+		cm.addLight(new SunLight(1, 2, -3, Color.white));
+		cm.init(0, 0);
 		
 		Block.setBlockSize(40, 20);
 		

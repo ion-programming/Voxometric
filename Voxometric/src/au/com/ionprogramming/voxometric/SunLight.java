@@ -35,7 +35,7 @@ public class SunLight {
 		}
 		for(int lx = 0; lx < input.chunkSize; lx++){
 			for(int ly = 0; ly < input.chunkSize; ly++){
-				for(int lz = 0; lz < input.chunkSize; lz++){
+				for(int lz = 0; lz < input.chunkHeight; lz++){
 					if(input.chunkData[lx][ly][lz] != null && !input.chunkData[lx][ly][lz].isTextured()){
 						Block block = input.chunkData[lx][ly][lz];
 						
