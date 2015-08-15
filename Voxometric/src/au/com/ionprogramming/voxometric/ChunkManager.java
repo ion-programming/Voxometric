@@ -15,17 +15,32 @@ import org.newdawn.slick.Graphics;
 public class ChunkManager {
 	private int oX, oY, oZ;
 	private Chunk[][][] chunks;
-	private String worldFile = "C:/vox/world.vox";
+	private String worldFile;
 	private int chunkSize;
 	private int loadSize;
-	private int reloadThreshold = 2;
+	private int reloadThreshold;
 	private BlockList blockList;
 	
-	public ChunkManager(int loadSize){
+	public ChunkManager(int loadSize, int reloadThreshold, String worldFile){
 		this.loadSize = loadSize;
+		this.reloadThreshold = reloadThreshold;
+		this.worldFile = worldFile;
 		chunks = new Chunk[loadSize][loadSize][loadSize];
 		oX = oY = oZ = 0;
 		blockList = new BlockList();
+	}
+	
+	public void init(int oX, int oY, int oZ){
+		this.oX = oX;
+		this.oY = oY;
+		this.oZ = oZ;
+		for(int k = 0; k < loadSize; k++){
+			for(int j = 0; j < loadSize; j++){
+				for(int i = 0; i < loadSize; i++){
+					chunks[i][j][k] = loadChunk(i - oX, j - oY, k - oZ);
+				}
+			}
+		}
 	}
 	
 	public BlockList getBlockList(){
@@ -102,10 +117,10 @@ public class ChunkManager {
 		}
 	}
 	
-	public void update(int midX, int midY, int midZ){
-		int xOS = midX + oX - loadSize/2;
-		int yOS = midY + oY - loadSize/2;
-		int zOS = midZ + oZ - loadSize/2;
+	public void update(int playerX, int playerY, int playerZ){
+		int xOS = playerX/chunkSize + oX - loadSize/2;
+		int yOS = playerY/chunkSize + oY - loadSize/2;
+		int zOS = playerZ/chunkSize + oZ - loadSize/2;
 		if(Math.abs(xOS) >= reloadThreshold || Math.abs(yOS) >= reloadThreshold || Math.abs(zOS) >= reloadThreshold){
 			oX -= xOS;
 			oY -= yOS;
@@ -135,17 +150,6 @@ public class ChunkManager {
 				}
 			}
 		}
-	}
-	
-	public void addChunk(int x, int y, int z){
-		int aX = x + oX;
-		int aY = y + oY;
-		int aZ = z + oZ;
-		if(aX < 0 || aX >= loadSize || aY < 0 || aY >= loadSize || aZ < 0 || aZ >= loadSize){
-			System.err.println("Cannot load chunk! Out of bounds!");
-			return;
-		}
-		chunks[aX][aY][aZ] = loadChunk(x, y, z);
 	}
 	
 	public Chunk loadChunk(int x, int y, int z){

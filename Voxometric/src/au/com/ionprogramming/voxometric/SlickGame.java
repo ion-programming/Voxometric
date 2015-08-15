@@ -67,7 +67,8 @@ public class SlickGame extends BasicGame{
 
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
-		cm.render(g, width, height, input.getViewAngle() , cx, cy, cz);
+		cm.update((int)cx, (int)cy, (int)cz);
+		cm.render(g, width, height, input.getViewAngle(), cx, cy, cz);
 		
 		EntityManager.render(g);
 		
