@@ -14,15 +14,18 @@ import org.newdawn.slick.SlickException;
 import au.com.ionprogramming.voxometric.blocks.Grass;
 import au.com.ionprogramming.voxometric.blocks.Water;
 import au.com.ionprogramming.voxometric.entities.EntityManager;
+import au.com.ionprogramming.voxometric.gui.Minimap;
 
 public class SlickGame extends BasicGame{
 	
-	private static int width = 1280;
-	private static int height = 720;
+	public static int width = 1280;
+	public static int height = 720;
 	
 	public static double cx = 0;
 	public static double cy = 0;
 	public static double cz = 0;
+	
+	public static boolean drawMiniMap = false;
 	
 	private InputManager input;
 		
@@ -69,6 +72,7 @@ public class SlickGame extends BasicGame{
 
 	@Override
 	public void render(GameContainer gc, Graphics g) throws SlickException {
+		
 		cm.update((int)cx, (int)cy, (int)cz);
 		cm.render(g, width, height, input.getViewAngle(), cx, cy, cz);
 		
@@ -76,6 +80,11 @@ public class SlickGame extends BasicGame{
 		
 		g.setColor(Color.white);
 		g.drawString("Coords: " + String.format("%4.2f", cx) + ", " + String.format("%4.2f", cy) + ", " + String.format("%4.2f", cz), 10 , 30);
+		
+		if(drawMiniMap){
+			Minimap.generate(16, 12);
+			Minimap.render(g);
+		}
 	}
 
 	public static void main(String[] args){

@@ -9,6 +9,8 @@ public class ChunkGenerator {
 
 	public static int CHUNK_SIZE = 16;
 	public static int CHUNK_HEIGHT = 32;
+	public static int WATER_THRESHOLD = 12;
+	
 	
 	public static Chunk getChunk(int cx, int cy){
 		int[][] heightMap = SimplexNoise.generateNoiseMap(cx, cy, CHUNK_SIZE, CHUNK_HEIGHT);
@@ -21,7 +23,7 @@ public class ChunkGenerator {
 					if(heightMap[x][y] >= z){
 						blocks[x][y][z] = new Grass(x, y, z);
 					}
-					else if(z <= 16){
+					else if(z <= WATER_THRESHOLD){
 						blocks[x][y][z] = new Water(x, y, z);
 					}
 					

@@ -2,6 +2,8 @@ package au.com.ionprogramming.voxometric;
 
 import org.newdawn.slick.Input;
 
+import au.com.ionprogramming.voxometric.gui.Minimap;
+
 public class InputManager {
 	
 	public boolean forward = false;
@@ -46,6 +48,17 @@ public class InputManager {
 		down = i.isKeyDown(Input.KEY_LSHIFT);
 		
 		up = i.isKeyDown(Input.KEY_SPACE);
+		
+		if(i.isKeyPressed(Input.KEY_M)){
+			if(!SlickGame.drawMiniMap){
+				Minimap.generate(16, 12);
+				SlickGame.drawMiniMap = true;
+			}
+			else{
+				SlickGame.drawMiniMap = false;
+			}
+			
+		}
 	}
 	
 	public int getViewAngle(){

@@ -162,6 +162,9 @@ public class Block {
 				g.setColor(outline);
 				g.draw(topPoly.transform(t));
 			}
+//			if(isTransparent){
+//				return;
+//			}
 			if(drawLeft){
 				g.setColor(cl);
 				g.fill(leftPoly.transform(t));
