@@ -18,6 +18,9 @@ public class Light {
 	}
 	
 	public Chunk illuminate(Chunk input){
+		if(input == null){
+			return null;
+		}
 		x -= input.chunkSize*input.x;
 		y -= input.chunkSize*input.y;
 		z -= input.chunkSize*input.z;

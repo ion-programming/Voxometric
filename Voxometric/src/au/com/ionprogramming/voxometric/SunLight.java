@@ -30,6 +30,9 @@ public class SunLight {
 	}
 	
 	public Chunk illuminate(Chunk input){
+		if(input == null){
+			return null;
+		}
 		for(int lx = 0; lx < input.chunkSize; lx++){
 			for(int ly = 0; ly < input.chunkSize; ly++){
 				for(int lz = 0; lz < input.chunkSize; lz++){

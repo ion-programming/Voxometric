@@ -2,12 +2,13 @@ package au.com.ionprogramming.voxometric;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.newdawn.slick.Graphics;
@@ -20,6 +21,8 @@ public class ChunkManager {
 	private int loadSize;
 	private int reloadThreshold;
 	private BlockList blockList;
+	private ArrayList<SunLight> sunLights = new ArrayList<SunLight>();
+	private ArrayList<Light> lights = new ArrayList<Light>();
 	
 	public ChunkManager(int loadSize, int reloadThreshold, String worldFile){
 		this.loadSize = loadSize;
@@ -38,6 +41,12 @@ public class ChunkManager {
 			for(int j = 0; j < loadSize; j++){
 				for(int i = 0; i < loadSize; i++){
 					chunks[i][j][k] = loadChunk(i - oX, j - oY, k - oZ);
+					for(int n = 0; n < sunLights.size(); n++){
+						sunLights.get(n).illuminate(chunks[i][j][k]);
+					}
+					for(int n = 0; n < lights.size(); n++){
+						lights.get(n).illuminate(chunks[i][j][k]);
+					}
 				}
 			}
 		}
@@ -51,28 +60,12 @@ public class ChunkManager {
 		this.blockList = blockList;
 	}
 	
-	public void illuminate(Light light){
-		for(int z = 0; z < loadSize; z++){
-			for(int y = 0; y < loadSize; y++){
-				for(int x = 0; x < loadSize; x++){
-					if(chunks[x][y][z] != null){
-						light.illuminate(chunks[x][y][z]);
-					}
-				}
-			}
-		}
+	public void addLight(Light light){
+		lights.add(light);
 	}
-
-	public void illuminate(SunLight light){
-		for(int z = 0; z < loadSize; z++){
-			for(int y = 0; y < loadSize; y++){
-				for(int x = 0; x < loadSize; x++){
-					if(chunks[x][y][z] != null){
-						light.illuminate(chunks[x][y][z]);
-					}
-				}
-			}
-		}
+	
+	public void addLight(SunLight light){
+		sunLights.add(light);
 	}
 	
 	public void render(Graphics g, int width, int height, int angle, double cx, double cy, double cz){
@@ -137,6 +130,12 @@ public class ChunkManager {
 						tZ = k + zOS;
 						if(tX < 0 || tY < 0 || tZ < 0 || tX >= loadSize || tY >= loadSize || tZ >= loadSize){
 							temp[i][j][k] = loadChunk(i - oX, j - oY, k - oZ);
+							for(int n = 0; n < sunLights.size(); n++){
+								sunLights.get(n).illuminate(temp[i][j][k]);
+							}
+							for(int n = 0; n < lights.size(); n++){
+								lights.get(n).illuminate(temp[i][j][k]);
+							}
 						}
 						else{
 							temp[i][j][k] = chunks[tX][tY][tZ];
@@ -238,6 +237,43 @@ public class ChunkManager {
 			System.err.println("Unable to find save file: " + worldFile);
 		}
 		return null;
+	}
+	
+	public void saveNewWorld(Chunk[] world){
+		try{
+			BufferedWriter out = new BufferedWriter(new FileWriter(worldFile));
+			try{
+				chunkSize = world[0].chunkSize;
+				out.write(chunkSize + "");
+				out.newLine();
+				for(int n = 0; n < world.length; n++){
+					out.write(world[n].x + " " + world[n].y + " " + world[n].z + " ");
+					int id = blockList.getBlockID(world[n].chunkData[0][0][0]);
+					int lineCount = 0;
+					for(int k = 0; k < chunkSize; k++){
+						for(int j = 0; j < chunkSize; j++){
+							for(int i = 0; i < chunkSize; i++){
+								int nextID = blockList.getBlockID(world[n].chunkData[i][j][k]);
+								if(id != nextID){
+									out.write(id + ":" + lineCount + " ");
+									lineCount = 0;
+									id = nextID;
+								}
+								lineCount++;
+							}
+						}
+					}
+					out.write(id + ":" + lineCount + " ");
+					out.newLine();
+				}
+			}
+			finally{
+				out.close();
+			}
+		}
+		catch(IOException e){
+			
+		}
 	}
 	
 	public void saveChunk(Chunk chunk){
