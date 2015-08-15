@@ -84,8 +84,7 @@ public class SlickGame extends BasicGame{
 			appgc.setAlwaysRender(true);
 			appgc.start();
 		}
-		catch (SlickException ex)
-		{
+		catch (SlickException ex){
 			Logger.getLogger(SlickGame.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
@@ -97,5 +96,4 @@ public class SlickGame extends BasicGame{
 		return height;
 	}
 
-	
 }
