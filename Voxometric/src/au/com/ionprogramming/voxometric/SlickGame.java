@@ -11,9 +11,8 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
 import org.newdawn.slick.SlickException;
 
-import au.com.ionprogramming.voxometric.blocks.Grass;
-import au.com.ionprogramming.voxometric.blocks.Water;
 import au.com.ionprogramming.voxometric.entities.EntityManager;
+import au.com.ionprogramming.voxometric.world.WorldGenerator;
 
 public class SlickGame extends BasicGame{
 	
@@ -38,7 +37,7 @@ public class SlickGame extends BasicGame{
 	public void init(GameContainer gc) throws SlickException {
 		Images.load();
 	
-		cm = Generator.generateWorld();
+		cm = WorldGenerator.generateWorld();
 		
 		Block.setBlockSize(40, 20);
 		
