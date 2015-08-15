@@ -13,7 +13,7 @@ public class Generator {
 	
 	public static ChunkManager generateWorld(){
 		
-		ChunkManager cm = new ChunkManager(8);
+		ChunkManager cm = new ChunkManager(8, 3, "C:/vox/world.vox");
 		
 		BlockList bl = new BlockList();
 		bl.addBlockType(new Grass(0, 0, 0));
@@ -21,15 +21,14 @@ public class Generator {
 		cm.setBlockList(bl);
 		
 		//GENERATE
-		for(int z = 0; z < 8; z++){
-			for(int y = 0; y < 8; y++){
-				for(int x = 0; x < 8; x++){
+		for(int z = 0; z < 16; z++){
+			for(int y = 0; y < 16; y++){
+				for(int x = 0; x < 16; x++){
 					cm.saveChunk(generate(x, y, z));
-					cm.addChunk(x, y, z);
 				}
 			}
 		}
-
+		cm.init(0, 0, 0);
 		
 		SunLight light = new SunLight(-20, 0, -4, Color.darkGray);
 		Light light1 = new Light(20, 20, 20, 30, Color.white);
